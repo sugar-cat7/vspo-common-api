@@ -28,4 +28,4 @@ func ProvideSongRepository(client *firestore.Client, repo *SongRepository) repos
 }
 
 // Set is a Wire provider set that provides a Firestore client.
-var Set = wire.NewSet(NewRepository, NewSongRepository, ProvideFirestoreClient, ProvideSongRepository, NewFirestoreClientImpl)
+var Set = wire.NewSet(NewSongRepository, ProvideFirestoreClient, ProvideSongRepository, NewFirestoreClientImpl)

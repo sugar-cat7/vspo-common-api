@@ -1,3 +1,6 @@
+//go:build wireinject
+
+//go:generate go run github.com/google/wire/cmd/wire@v0.5.0
 package di
 
 import (
