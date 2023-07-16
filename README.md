@@ -2,8 +2,22 @@
 
 This project provides common API components for the unofficial VSPO fan site.
 
-[すぽじゅーる](https://www.vspo-schedule.com/)
-[すぽうた(実装中)]
+Sites:
+
+- [すぽじゅーる](https://www.vspo-schedule.com/)
+- [すぽうた]()
+
+other Repositories:
+
+- [すぽじゅーる WebApp(非公開)]()
+
+- [すぽじゅーる API(非公開)]()
+
+- [すぽじゅーる NativeApp](https://github.com/sugar-cat7/vspo-schedule-native)
+
+- [すぽうた Web(実装中)]()
+
+- [すぽうた API(非公開)]()
 
 ## Project Structure
 
