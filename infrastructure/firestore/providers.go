@@ -18,14 +18,19 @@ func SetClientProvider(provider func() (*firestore.Client, error)) {
 }
 
 // ProvideFirestoreClient provides a Firestore client.
-func ProvideFirestoreClient() (*firestore.Client, error) {
-	return clientProvider()
+func ProvideFirestoreClient() (repositories.FirestoreClient, error) {
+	client, err := clientProvider()
+	if err != nil {
+		return nil, err
+	}
+
+	return &FirestoreClientImpl{Client: client}, nil
 }
 
 // ProvideSongRepository provides a song repository.
-func ProvideSongRepository(client *firestore.Client, repo *SongRepository) repositories.SongRepository {
+func ProvideSongRepository(client repositories.FirestoreClient, repo *SongRepository) repositories.SongRepository {
 	return repo
 }
 
-// Set is a Wire provider set that provides a Firestore client.
-var Set = wire.NewSet(NewSongRepository, ProvideFirestoreClient, ProvideSongRepository, NewFirestoreClientImpl)
+// Set is a Wire provider set that provides a Firestore client and a song repository.
+var Set = wire.NewSet(ProvideFirestoreClient, NewSongRepository, ProvideSongRepository)

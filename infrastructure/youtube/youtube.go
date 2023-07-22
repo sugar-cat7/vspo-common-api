@@ -3,7 +3,7 @@ package youtube
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -56,7 +56,7 @@ func (api *API) GetVideos(videoIDs []string) ([]entities.YTVideoListResponse, er
 		defer resp.Body.Close()
 
 		// Read the response body
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return nil, fmt.Errorf("error reading response body: %v", err)
 		}
@@ -92,7 +92,7 @@ func (api *API) GetPlaylists() ([]entities.YTYouTubePlaylistResponse, error) {
 		}
 		defer resp.Body.Close()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return nil, err
 		}

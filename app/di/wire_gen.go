@@ -18,18 +18,17 @@ import (
 
 // InitializeApplication initializes the entire application with all its dependencies using wire.
 func InitializeApplication() (*Application, func(), error) {
-	client, err := firestore.ProvideFirestoreClient()
+	firestoreClient, err := firestore.ProvideFirestoreClient()
 	if err != nil {
 		return nil, nil, err
 	}
-	firestoreClient := firestore.NewFirestoreClientImpl(client)
 	songRepository := firestore.NewSongRepository(firestoreClient)
-	repositoriesSongRepository := firestore.ProvideSongRepository(client, songRepository)
+	repositoriesSongRepository := firestore.ProvideSongRepository(firestoreClient, songRepository)
 	songService := services.NewSongService(repositoriesSongRepository)
 	getAllSongs := usecases.NewGetAllSongs(songService)
 	getAllSongsHandler := handlers.NewGetAllSongsHandler(getAllSongs)
-	httpClient := youtube.ProvideHTTPClient()
-	youTubeService := services.NewYouTubeService(httpClient)
+	client := youtube.ProvideHTTPClient()
+	youTubeService := services.NewYouTubeService(client)
 	createSong := usecases.NewCreateSong(youTubeService, songService)
 	createSongHandler := handlers.NewCreateSongHandler(createSong)
 	updateSongsFromYoutube := usecases.NewUpdateSongsFromYoutube(youTubeService, songService)

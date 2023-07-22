@@ -5,22 +5,21 @@ import (
 	"fmt"
 	"time"
 
-	"cloud.google.com/go/firestore"
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
+	"github.com/sugar-cat7/vspo-common-api/domain/repositories"
 	"github.com/sugar-cat7/vspo-common-api/util"
-	"google.golang.org/api/iterator"
 )
 
 // SongRepository is a Firestore implementation of a song repository.
 type SongRepository struct {
-	client         FirestoreClient
+	client         repositories.FirestoreClient
 	collectionName string
 }
 
 var collectionName = "songs"
 
 // NewSongRepository creates a new SongRepository.
-func NewSongRepository(client FirestoreClient) *SongRepository {
+func NewSongRepository(client repositories.FirestoreClient) *SongRepository {
 	return &SongRepository{
 		client:         client,
 		collectionName: collectionName,
@@ -29,10 +28,10 @@ func NewSongRepository(client FirestoreClient) *SongRepository {
 
 // Create creates a new song in Firestore.
 func (r *SongRepository) Create(song *entities.Song) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	_, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	_, err := r.client.Collection(r.collectionName).Doc(song.GetID()).Set(ctx, song)
+	_, err := r.client.Create(r.collectionName, song.GetID(), song)
 
 	if err != nil {
 		return fmt.Errorf("failed to create document in Firestore: %w", err)
@@ -43,24 +42,13 @@ func (r *SongRepository) Create(song *entities.Song) error {
 
 // GetAll retrieves all songs from Firestore.
 func (r *SongRepository) GetAll() ([]*entities.Song, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	iter, err := r.client.Collection(r.collectionName).Documents(ctx)
+	docs, err := r.client.GetAll(r.collectionName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get all documents from Firestore: %w", err)
 	}
 
 	var songs []*entities.Song
-	for {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			return nil, fmt.Errorf("failed to iterate over documents in Firestore: %w", err)
-		}
-
+	for _, doc := range docs {
 		var song entities.Song
 		err = doc.DataTo(&song)
 		if err != nil {
@@ -74,10 +62,7 @@ func (r *SongRepository) GetAll() ([]*entities.Song, error) {
 
 // GetByID retrieves a song by its ID from Firestore.
 func (r *SongRepository) GetByID(id string) (*entities.Song, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	doc, err := r.client.Collection(r.collectionName).Doc(id).Get(ctx)
+	doc, err := r.client.GetByID(r.collectionName, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get document by ID from Firestore: %w", err)
 	}
@@ -93,10 +78,7 @@ func (r *SongRepository) GetByID(id string) (*entities.Song, error) {
 
 // Update updates a song in Firestore.
 func (r *SongRepository) Update(song *entities.Song) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	_, err := r.client.Collection(r.collectionName).Doc(song.GetID()).Update(ctx, song.GetUpdate())
+	_, err := r.client.Update(r.collectionName, song.GetID(), song.GetUpdate())
 
 	if err != nil {
 		return fmt.Errorf("failed to update document in Firestore: %w", err)
@@ -107,10 +89,7 @@ func (r *SongRepository) Update(song *entities.Song) error {
 
 // Delete deletes a song from Firestore.
 func (r *SongRepository) Delete(id string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	_, err := r.client.Collection(r.collectionName).Doc(id).Delete(ctx)
+	_, err := r.client.Delete(r.collectionName, id)
 
 	if err != nil {
 		return fmt.Errorf("failed to delete document from Firestore: %w", err)
@@ -129,30 +108,29 @@ func (r *SongRepository) UpdateInBatch(songs []*entities.Song) error {
 		return fmt.Errorf("failed to chunk songs: %w", err)
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	bulkWriter := r.client.BulkWriter(ctx)
+
 	for _, songChunk := range songChunks {
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		// Start a new batch.
-		batch := r.client.Batch()
-
-		// Iterate over songs and add them to the batch.
+		// Iterate over songs and add them to the bulkWriter.
 		for _, song := range songChunk {
 			docRef := r.client.Collection(r.collectionName).Doc(song.GetID())
-			batch.Update(docRef, song.GetUpdate())
-		}
-
-		// Commit the batch.
-		_, err := batch.Commit(ctx)
-		if err != nil {
-			return fmt.Errorf("failed to update songs in Firestore: %w", err)
+			err := bulkWriter.Update(docRef, song.GetUpdate())
+			if err != nil {
+				return fmt.Errorf("failed to add update to bulkWriter in Firestore: %w", err)
+			}
 		}
 	}
+
+	// Commit the bulk writes.
+	bulkWriter.Flush()
 
 	return nil
 }
 
-// CreateInBatch creates multiple songs in Firestore.
+// CreateInBatch creates multiple songs in Firestore using batch operation.
 func (r *SongRepository) CreateInBatch(songs []*entities.Song) error {
 	// split songs into chunks of 500 (maxBatchSize)
 	songChunks, err := util.Chunk(songs, maxBatchSize)
@@ -160,25 +138,24 @@ func (r *SongRepository) CreateInBatch(songs []*entities.Song) error {
 		return fmt.Errorf("failed to chunk songs: %w", err)
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	bulkWriter := r.client.BulkWriter(ctx)
+
 	for _, songChunk := range songChunks {
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		// Start a new batch.
-		batch := r.client.Batch()
-
-		// Iterate over songs and add them to the batch.
+		// Iterate over songs and add them to the bulkWriter.
 		for _, song := range songChunk {
 			docRef := r.client.Collection(r.collectionName).Doc(song.GetID())
-			batch.Set(docRef, song, firestore.MergeAll)
-		}
-
-		// Commit the batch.
-		_, err := batch.Commit(ctx)
-		if err != nil {
-			return fmt.Errorf("failed to create songs in Firestore: %w", err)
+			err := bulkWriter.Create(docRef, song)
+			if err != nil {
+				return fmt.Errorf("failed to add creation to bulkWriter in Firestore: %w", err)
+			}
 		}
 	}
+
+	// Commit the bulk writes.
+	bulkWriter.Flush()
 
 	return nil
 }

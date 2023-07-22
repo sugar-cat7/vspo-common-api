@@ -29,7 +29,11 @@ func (h *GetAllSongsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(songs)
+	err = json.NewEncoder(w).Encode(songs)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 // UpdateSongsFromYoutubeHandler is a handler for updating songs from Youtube.
@@ -76,7 +80,11 @@ func (h *UpdateSongsFromYoutubeHandler) Handle(w http.ResponseWriter, r *http.Re
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Songs updated successfully"))
+	_, err = w.Write([]byte("Songs updated successfully"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 // CreateSongHandler is a handler for updating songs from Youtube.
@@ -101,5 +109,9 @@ func (h *CreateSongHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Songs updated successfully"))
+	_, err = w.Write([]byte("Songs updated successfully"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

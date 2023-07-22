@@ -1,7 +1,7 @@
-//go:generate go run github.com/google/wire/cmd/wire@v0.5.0 -o ../di/wire_gen.go
+//go:generate go run github.com/google/wire/cmd/wire@v0.5.0
 //go:build wireinject
 
-package wireinput
+package di
 
 import (
 	"github.com/google/wire"
