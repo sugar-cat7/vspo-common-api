@@ -13,6 +13,7 @@ import (
 type YouTubeService interface {
 	GetSongs(videoIDs []string) ([]entities.YTVideoListResponse, error)
 	GetPlaylists() ([]entities.YTYouTubePlaylistResponse, error)
+	GetChannels(channelIDs []string) ([]entities.Channel, error)
 }
 
 // youtubeServiceImpl is a YouTube implementation of a song service.
@@ -40,4 +41,9 @@ func (s *youtubeServiceImpl) GetSongs(videoIDs []string) ([]entities.YTVideoList
 // GetPlaylists returns a slice of YTYouTubePlaylistResponse models.
 func (s *youtubeServiceImpl) GetPlaylists() ([]entities.YTYouTubePlaylistResponse, error) {
 	return s.API.GetPlaylists()
+}
+
+// GetChannels returns a slice of Channel models.
+func (s *youtubeServiceImpl) GetChannels(channelIDs []string) ([]entities.Channel, error) {
+	return s.API.GetChannels(channelIDs)
 }

@@ -107,3 +107,45 @@ func (api *API) GetPlaylists() ([]entities.YTYouTubePlaylistResponse, error) {
 
 	return responses, nil
 }
+
+// GetChannels returns a slice of channels.
+func (api *API) GetChannels(channelIDs []string) ([]entities.Channel, error) {
+	var data []entities.Channel
+
+	chunkSize := 50
+
+	channelIDChunks, err := util.Chunk(channelIDs, chunkSize)
+	if err != nil {
+		return nil, fmt.Errorf("error splitting channelIDs into chunks: %v", err)
+	}
+
+	for _, chunk := range channelIDChunks {
+		channelIDsJoined := strings.Join(chunk, ",")
+
+		requestURL := "https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=" + channelIDsJoined + "&key=" + os.Getenv("YOUTUBE_API_KEY")
+
+		resp, err := api.Client.Get(requestURL)
+		if err != nil {
+			return nil, fmt.Errorf("error making HTTP request to YouTube API: %v", err)
+		}
+		defer resp.Body.Close()
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("error reading response body: %v", err)
+		}
+
+		var currentData struct {
+			Items []entities.Channel `json:"items"`
+		}
+
+		err = json.Unmarshal(body, &currentData)
+		if err != nil {
+			return nil, fmt.Errorf("error unmarshalling JSON response: %v", err)
+		}
+
+		data = append(data, currentData.Items...)
+	}
+
+	return data, nil
+}

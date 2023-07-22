@@ -5,30 +5,40 @@ package di
 
 import (
 	"github.com/google/wire"
-	handlers "github.com/sugar-cat7/vspo-common-api/app/http/handlers/songs"
+	channel_handlers "github.com/sugar-cat7/vspo-common-api/app/http/handlers/channels"
+	song_handlers "github.com/sugar-cat7/vspo-common-api/app/http/handlers/songs"
 	"github.com/sugar-cat7/vspo-common-api/domain/services"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/firestore"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/youtube"
-	usecases "github.com/sugar-cat7/vspo-common-api/usecases/song"
+	channel_usecases "github.com/sugar-cat7/vspo-common-api/usecases/channel"
+	song_usecases "github.com/sugar-cat7/vspo-common-api/usecases/song"
 )
 
 // Application is the main application struct which holds all the dependencies together.
 type Application struct {
-	GetAllSongsHandler            *handlers.GetAllSongsHandler
-	CreateSongHandler             *handlers.CreateSongHandler
-	UpdateSongsFromYoutubeHandler *handlers.UpdateSongsFromYoutubeHandler
+	GetAllSongsHandler               *song_handlers.GetAllSongsHandler
+	CreateSongHandler                *song_handlers.CreateSongHandler
+	UpdateSongsFromYoutubeHandler    *song_handlers.UpdateSongsFromYoutubeHandler
+	GetChannelsHandler               *channel_handlers.GetChannelsHandler
+	CreateChannelHandler             *channel_handlers.CreateChannelHandler
+	UpdateChannelsFromYoutubeHandler *channel_handlers.UpdateChannelsFromYoutubeHandler
 }
 
 // NewApplication creates a new Application.
-func NewApplication(getAllSongsHandler *handlers.GetAllSongsHandler, createSongHandler *handlers.CreateSongHandler, updateSongsFromYoutubeHandler *handlers.UpdateSongsFromYoutubeHandler) *Application {
+func NewApplication(getAllSongsHandler *song_handlers.GetAllSongsHandler, createSongHandler *song_handlers.CreateSongHandler, updateSongsFromYoutubeHandler *song_handlers.UpdateSongsFromYoutubeHandler,
+	getChannelsHandler *channel_handlers.GetChannelsHandler, createChannelHandler *channel_handlers.CreateChannelHandler, updateChannelsFromYoutubeHandler *channel_handlers.UpdateChannelsFromYoutubeHandler,
+) *Application {
 	return &Application{
-		GetAllSongsHandler:            getAllSongsHandler,
-		CreateSongHandler:             createSongHandler,
-		UpdateSongsFromYoutubeHandler: updateSongsFromYoutubeHandler,
+		GetAllSongsHandler:               getAllSongsHandler,
+		CreateSongHandler:                createSongHandler,
+		UpdateSongsFromYoutubeHandler:    updateSongsFromYoutubeHandler,
+		GetChannelsHandler:               getChannelsHandler,
+		CreateChannelHandler:             createChannelHandler,
+		UpdateChannelsFromYoutubeHandler: updateChannelsFromYoutubeHandler,
 	}
 }
 
 // InitializeApplication initializes the entire application with all its dependencies using wire.
 func InitializeApplication() (*Application, func(), error) {
-	panic(wire.Build(services.Set, firestore.Set, youtube.Set, usecases.Set, handlers.Set, NewApplication))
+	panic(wire.Build(services.Set, firestore.Set, youtube.Set, song_usecases.Set, channel_usecases.Set, song_handlers.Set, channel_handlers.Set, NewApplication))
 }

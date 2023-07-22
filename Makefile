@@ -19,3 +19,6 @@ wire_gen:
 
 mock_gen:
 	go generate ./domain/...
+
+lint:
+	golangci-lint run ./...
