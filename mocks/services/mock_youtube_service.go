@@ -34,6 +34,21 @@ func (m *MockYouTubeService) EXPECT() *MockYouTubeServiceMockRecorder {
 	return m.recorder
 }
 
+// GetChannels mocks base method.
+func (m *MockYouTubeService) GetChannels(arg0 []string) ([]entities.Channel, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetChannels", arg0)
+	ret0, _ := ret[0].([]entities.Channel)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetChannels indicates an expected call of GetChannels.
+func (mr *MockYouTubeServiceMockRecorder) GetChannels(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChannels", reflect.TypeOf((*MockYouTubeService)(nil).GetChannels), arg0)
+}
+
 // GetPlaylists mocks base method.
 func (m *MockYouTubeService) GetPlaylists() ([]entities.YTYouTubePlaylistResponse, error) {
 	m.ctrl.T.Helper()

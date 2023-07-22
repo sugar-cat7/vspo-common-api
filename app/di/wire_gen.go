@@ -7,10 +7,12 @@
 package di
 
 import (
+	handlers2 "github.com/sugar-cat7/vspo-common-api/app/http/handlers/channels"
 	"github.com/sugar-cat7/vspo-common-api/app/http/handlers/songs"
 	"github.com/sugar-cat7/vspo-common-api/domain/services"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/firestore"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/youtube"
+	usecases2 "github.com/sugar-cat7/vspo-common-api/usecases/channel"
 	"github.com/sugar-cat7/vspo-common-api/usecases/song"
 )
 
@@ -33,7 +35,16 @@ func InitializeApplication() (*Application, func(), error) {
 	createSongHandler := handlers.NewCreateSongHandler(createSong)
 	updateSongsFromYoutube := usecases.NewUpdateSongsFromYoutube(youTubeService, songService)
 	updateSongsFromYoutubeHandler := handlers.NewUpdateSongsFromYoutubeHandler(updateSongsFromYoutube)
-	application := NewApplication(getAllSongsHandler, createSongHandler, updateSongsFromYoutubeHandler)
+	channelRepository := firestore.NewChannelRepository(firestoreClient)
+	repositoriesChannelRepository := firestore.ProvideChannelRepository(firestoreClient, channelRepository)
+	channelService := services.NewChannelService(repositoriesChannelRepository)
+	getChannels := usecases2.NewGetChannels(channelService)
+	getChannelsHandler := handlers2.NewGetChannelsHandler(getChannels)
+	createChannel := usecases2.NewCreateChannel(youTubeService, channelService)
+	createChannelHandler := handlers2.NewCreateChannelHandler(createChannel)
+	updateChannelsFromYoutube := usecases2.NewUpdateChannelsFromYoutube(youTubeService, channelService)
+	updateChannelsFromYoutubeHandler := handlers2.NewUpdateChannelsFromYoutubeHandler(updateChannelsFromYoutube)
+	application := NewApplication(getAllSongsHandler, createSongHandler, updateSongsFromYoutubeHandler, getChannelsHandler, createChannelHandler, updateChannelsFromYoutubeHandler)
 	return application, func() {
 	}, nil
 }
@@ -42,16 +53,24 @@ func InitializeApplication() (*Application, func(), error) {
 
 // Application is the main application struct which holds all the dependencies together.
 type Application struct {
-	GetAllSongsHandler            *handlers.GetAllSongsHandler
-	CreateSongHandler             *handlers.CreateSongHandler
-	UpdateSongsFromYoutubeHandler *handlers.UpdateSongsFromYoutubeHandler
+	GetAllSongsHandler               *handlers.GetAllSongsHandler
+	CreateSongHandler                *handlers.CreateSongHandler
+	UpdateSongsFromYoutubeHandler    *handlers.UpdateSongsFromYoutubeHandler
+	GetChannelsHandler               *handlers2.GetChannelsHandler
+	CreateChannelHandler             *handlers2.CreateChannelHandler
+	UpdateChannelsFromYoutubeHandler *handlers2.UpdateChannelsFromYoutubeHandler
 }
 
 // NewApplication creates a new Application.
-func NewApplication(getAllSongsHandler *handlers.GetAllSongsHandler, createSongHandler *handlers.CreateSongHandler, updateSongsFromYoutubeHandler *handlers.UpdateSongsFromYoutubeHandler) *Application {
+func NewApplication(getAllSongsHandler *handlers.GetAllSongsHandler, createSongHandler *handlers.CreateSongHandler, updateSongsFromYoutubeHandler *handlers.UpdateSongsFromYoutubeHandler,
+	getChannelsHandler *handlers2.GetChannelsHandler, createChannelHandler *handlers2.CreateChannelHandler, updateChannelsFromYoutubeHandler *handlers2.UpdateChannelsFromYoutubeHandler,
+) *Application {
 	return &Application{
-		GetAllSongsHandler:            getAllSongsHandler,
-		CreateSongHandler:             createSongHandler,
-		UpdateSongsFromYoutubeHandler: updateSongsFromYoutubeHandler,
+		GetAllSongsHandler:               getAllSongsHandler,
+		CreateSongHandler:                createSongHandler,
+		UpdateSongsFromYoutubeHandler:    updateSongsFromYoutubeHandler,
+		GetChannelsHandler:               getChannelsHandler,
+		CreateChannelHandler:             createChannelHandler,
+		UpdateChannelsFromYoutubeHandler: updateChannelsFromYoutubeHandler,
 	}
 }

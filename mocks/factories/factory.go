@@ -162,3 +162,48 @@ func NewSong(videoID string) entities.Song {
 		Tags:         []string{"tag1", "tag2"},
 	}
 }
+
+func NewChannel(channelID string) entities.Channel {
+	return entities.Channel{
+		ID: channelID,
+		Snippet: entities.ChannelSnippet{
+			Title:       "channelTitle1",
+			Description: "description1",
+			CustomURL:   "https://example.com/" + channelID,
+			PublishedAt: time.Date(2023, 01, 01, 0, 0, 0, 0, time.UTC),
+			Thumbnails: entities.Thumbnails{
+				Default: entities.Thumbnail{
+					URL:    "https://example.com/default.jpg",
+					Width:  120,
+					Height: 90,
+				},
+				Medium: entities.Thumbnail{
+					URL:    "https://example.com/medium.jpg",
+					Width:  320,
+					Height: 180,
+				},
+				High: entities.Thumbnail{
+					URL:    "https://example.com/high.jpg",
+					Width:  480,
+					Height: 360,
+				},
+				Standard: entities.Thumbnail{
+					URL:    "https://example.com/standard.jpg",
+					Width:  640,
+					Height: 480,
+				},
+				Maxres: entities.Thumbnail{
+					URL:    "https://example.com/maxres.jpg",
+					Width:  1280,
+					Height: 720,
+				},
+			},
+		},
+		Statistics: entities.ChannelStatistics{
+			ViewCount:             "10000",
+			SubscriberCount:       "5000",
+			HiddenSubscriberCount: false,
+			VideoCount:            "200",
+		},
+	}
+}

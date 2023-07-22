@@ -28,3 +28,13 @@ func Chunk[T any](data []T, chunkSize int) ([][]T, error) {
 
 	return chunks, nil
 }
+
+// ConvertToPtrSlice converts a slice of values to a slice of pointers.
+func ConvertToPtrSlice[T any](data []T) []*T {
+	var ptrs []*T
+	for _, d := range data {
+		d := d // Create a new 'd' variable on each loop iteration
+		ptrs = append(ptrs, &d)
+	}
+	return ptrs
+}

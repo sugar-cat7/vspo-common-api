@@ -68,6 +68,21 @@ func (c *FirestoreClientImpl) Delete(collectionName, id string) (*firestore.Writ
 	return c.Client.Collection(collectionName).Doc(id).Delete(ctx)
 }
 
+func (c *FirestoreClientImpl) GetInBatch(collectionName string, ids []string) (docs []*firestore.DocumentSnapshot, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	for _, id := range ids {
+		doc, err := c.Client.Collection(collectionName).Doc(id).Get(ctx)
+		if err != nil {
+			return nil, err
+		}
+		docs = append(docs, doc)
+	}
+
+	return docs, nil
+}
+
 type BulkWriterImpl struct {
 	BulkWriter *firestore.BulkWriter
 }
@@ -85,3 +100,10 @@ func (b *BulkWriterImpl) Update(doc *firestore.DocumentRef, updates []firestore.
 func (b *BulkWriterImpl) Flush() {
 	b.BulkWriter.Flush()
 }
+
+const (
+	channelsCollectionName = "channels"
+	songsCollectionName    = "songs"
+)
+
+var maxBatchSize = 500

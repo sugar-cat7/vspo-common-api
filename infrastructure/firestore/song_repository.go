@@ -16,13 +16,11 @@ type SongRepository struct {
 	collectionName string
 }
 
-var collectionName = "songs"
-
 // NewSongRepository creates a new SongRepository.
 func NewSongRepository(client repositories.FirestoreClient) *SongRepository {
 	return &SongRepository{
 		client:         client,
-		collectionName: collectionName,
+		collectionName: songsCollectionName,
 	}
 }
 
@@ -97,8 +95,6 @@ func (r *SongRepository) Delete(id string) error {
 
 	return nil
 }
-
-var maxBatchSize = 500
 
 // UpdateInBatch updates multiple songs in Firestore using batch operation.
 func (r *SongRepository) UpdateInBatch(songs []*entities.Song) error {

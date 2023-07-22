@@ -15,6 +15,7 @@ type FirestoreClient interface {
 	Create(string, string, interface{}) (*firestore.WriteResult, error)
 	Update(string, string, interface{}) (*firestore.WriteResult, error)
 	Delete(string, string) (*firestore.WriteResult, error)
+	GetInBatch(string, []string) ([]*firestore.DocumentSnapshot, error)
 }
 
 // BulkWriter is the interface that wraps firestore's BulkWriter method set.
