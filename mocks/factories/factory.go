@@ -1,124 +1,17 @@
 package factories
 
 import (
+	"strconv"
 	"time"
 
+	"github.com/brianvoe/gofakeit/v6"
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
+	"google.golang.org/api/youtube/v3"
 )
 
-func NewYTVideoListResponse(videoID string) entities.YTVideoListResponse {
-	videoListResponse := entities.YTVideoListResponse{
-		Kind: "youtube#videoListResponse",
-		Etag: "etag1",
-		Items: []entities.YTVideo{
-			{
-				Kind: "youtube#video",
-				Etag: "etag2",
-				ID:   videoID,
-				Snippet: entities.YTVideoSnippet{
-					PublishedAt: "2023-01-01T00:00:00Z",
-					ChannelID:   "channelID1",
-					Title:       "title1",
-					Description: "description1",
-					Thumbnails: entities.YTThumbnails{
-						Default: entities.YTThumbnail{
-							URL:    "https://example.com/default.jpg",
-							Width:  120,
-							Height: 90,
-						},
-						Medium: entities.YTThumbnail{
-							URL:    "https://example.com/medium.jpg",
-							Width:  320,
-							Height: 180,
-						},
-						High: entities.YTThumbnail{
-							URL:    "https://example.com/high.jpg",
-							Width:  480,
-							Height: 360,
-						},
-						Standard: entities.YTThumbnail{
-							URL:    "https://example.com/standard.jpg",
-							Width:  640,
-							Height: 480,
-						},
-						Maxres: entities.YTThumbnail{
-							URL:    "https://example.com/maxres.jpg",
-							Width:  1280,
-							Height: 720,
-						},
-					},
-					ChannelTitle: "channelTitle1",
-					Tags:         []string{"tag1", "tag2"},
-					CategoryID:   "categoryID1",
-				},
-				Statistics: entities.YTStatistics{
-					ViewCount:     "1000",
-					LikeCount:     "500",
-					FavoriteCount: "200",
-					CommentCount:  "100",
-				},
-			},
-		},
-	}
-
-	return videoListResponse
-}
-
-func NewYTPlayListListResponse(videoID string) entities.YTYouTubePlaylistResponse {
-	playlist := entities.YTYouTubePlaylistResponse{
-		Kind: "youtube#playlistResponse",
-		Items: []struct {
-			entities.YTPlayListSnippet `json:"snippet"`
-		}{
-			{
-				YTPlayListSnippet: entities.YTPlayListSnippet{
-					PublishedAt: "2023-01-01T00:00:00Z",
-					ChannelID:   "channelID1",
-					Title:       "title1",
-					Description: "description1",
-					Thumbnails: entities.YTThumbnails{
-						Default: entities.YTThumbnail{
-							URL:    "https://example.com/default.jpg",
-							Width:  120,
-							Height: 90,
-						},
-						Medium: entities.YTThumbnail{
-							URL:    "https://example.com/medium.jpg",
-							Width:  320,
-							Height: 180,
-						},
-						High: entities.YTThumbnail{
-							URL:    "https://example.com/high.jpg",
-							Width:  480,
-							Height: 360,
-						},
-						Standard: entities.YTThumbnail{
-							URL:    "https://example.com/standard.jpg",
-							Width:  640,
-							Height: 480,
-						},
-						Maxres: entities.YTThumbnail{
-							URL:    "https://example.com/maxres.jpg",
-							Width:  1280,
-							Height: 720,
-						},
-					},
-					ChannelTitle:           "channelTitle1",
-					PlaylistID:             "playlistID1",
-					Position:               1,
-					ResourceID:             entities.YTResourceID{Kind: "youtube#video", VideoID: videoID},
-					VideoOwnerChannelTitle: "videoOwnerChannelTitle1",
-					VideoOwnerChannelID:    "videoOwnerChannelID1",
-				},
-			},
-		},
-		PageInfo: entities.YTPageInfo{
-			TotalResults:   1,
-			ResultsPerPage: 1,
-		},
-	}
-
-	return playlist
+func NewSongPtr(videoID string) *entities.Song {
+	song := NewSong(videoID)
+	return &song
 }
 
 func NewSong(videoID string) entities.Song {
@@ -204,6 +97,105 @@ func NewChannel(channelID string) entities.Channel {
 			SubscriberCount:       "5000",
 			HiddenSubscriberCount: false,
 			VideoCount:            "200",
+		},
+	}
+}
+
+// NewYoutubeVideo creates a new mock youtube.Video instance with a given ID and random data for the other fields
+func NewYoutubeVideo(id string) *youtube.Video {
+	viewCount := gofakeit.Number(1000000000, 9999999999) // generate a random 10-digit number for the view count
+	return &youtube.Video{
+		Id: id,
+		Snippet: &youtube.VideoSnippet{
+			Title:        gofakeit.Sentence(5),
+			Description:  gofakeit.Paragraph(5, 10, 25, " "),
+			ChannelId:    gofakeit.UUID(),
+			ChannelTitle: gofakeit.Word(),
+			CategoryId:   strconv.Itoa(gofakeit.Number(10, 99)), // generate a random 2-digit number for the category ID
+			PublishedAt:  time.Now().Format(time.RFC3339),
+			Thumbnails: &youtube.ThumbnailDetails{
+				Default: &youtube.Thumbnail{
+					Url:    gofakeit.URL(),
+					Width:  120,
+					Height: 90,
+				},
+				Medium: &youtube.Thumbnail{
+					Url:    gofakeit.URL(),
+					Width:  320,
+					Height: 180,
+				},
+				High: &youtube.Thumbnail{
+					Url:    gofakeit.URL(),
+					Width:  480,
+					Height: 360,
+				},
+				Standard: &youtube.Thumbnail{
+					Url:    gofakeit.URL(),
+					Width:  640,
+					Height: 480,
+				},
+				Maxres: &youtube.Thumbnail{
+					Url:    gofakeit.URL(),
+					Width:  1280,
+					Height: 720,
+				},
+			},
+			Tags: []string{gofakeit.Word(), gofakeit.Word(), gofakeit.Word()},
+		},
+		ContentDetails: &youtube.VideoContentDetails{
+			Duration: strconv.Itoa(gofakeit.Number(100, 999)), // generate a random 3-digit number for the duration
+		},
+		Statistics: &youtube.VideoStatistics{
+			ViewCount: uint64(viewCount),
+		},
+	}
+}
+
+// NewYoutubeChannel creates a new mock youtube.Channel instance with a given ID and random data for the other fields
+func NewYoutubeChannel(id string) *youtube.Channel {
+	viewCount := gofakeit.Number(1000000000, 9999999999) // generate a random 10-digit number for the view count
+	subscriberCount := gofakeit.Number(1000000, 9999999) // generate a random 7-digit number for the subscriber count
+	videoCount := gofakeit.Number(100, 999)              // generate a random 3-digit number for the video count
+
+	return &youtube.Channel{
+		Id: id,
+		Snippet: &youtube.ChannelSnippet{
+			Title:       gofakeit.Sentence(5),
+			Description: gofakeit.Paragraph(5, 10, 25, " "),
+			CustomUrl:   gofakeit.URL(),
+			PublishedAt: time.Now().Format(time.RFC3339),
+			Thumbnails: &youtube.ThumbnailDetails{
+				Default: &youtube.Thumbnail{
+					Url:    gofakeit.ImageURL(120, 90),
+					Width:  120,
+					Height: 90,
+				},
+				Medium: &youtube.Thumbnail{
+					Url:    gofakeit.ImageURL(320, 180),
+					Width:  320,
+					Height: 180,
+				},
+				High: &youtube.Thumbnail{
+					Url:    gofakeit.ImageURL(480, 360),
+					Width:  480,
+					Height: 360,
+				},
+				Standard: &youtube.Thumbnail{
+					Url:    gofakeit.ImageURL(640, 480),
+					Width:  640,
+					Height: 480,
+				},
+				Maxres: &youtube.Thumbnail{
+					Url:    gofakeit.ImageURL(1280, 720),
+					Width:  1280,
+					Height: 720,
+				},
+			},
+		},
+		Statistics: &youtube.ChannelStatistics{
+			ViewCount:       uint64(viewCount),
+			SubscriberCount: uint64(subscriberCount),
+			VideoCount:      uint64(videoCount),
 		},
 	}
 }

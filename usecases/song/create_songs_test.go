@@ -8,38 +8,38 @@ import (
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
 	"github.com/sugar-cat7/vspo-common-api/mocks/factories"
 	mocks "github.com/sugar-cat7/vspo-common-api/mocks/services"
+	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
+	"google.golang.org/api/youtube/v3"
 )
 
 func TestCreateSong_Execute(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	existingIDs := []string{"videoID2", "videoID3"}
-	newVideoIDs := []string{"videoID1"}
-
-	playlistResponse := []entities.YTYouTubePlaylistResponse{
-		factories.NewYTPlayListListResponse(newVideoIDs[0]),
+	videoIDs := []string{"videoID1", "videoID2"}
+	newVideoData := []*youtube.Video{
+		factories.NewYoutubeVideo(videoIDs[0]),
+		factories.NewYoutubeVideo(videoIDs[1]),
 	}
 
-	newVideoData := []entities.YTVideoListResponse{
-		factories.NewYTVideoListResponse(newVideoIDs[0]),
+	newSongData := []*entities.Song{
+		factories.NewSongPtr(videoIDs[0]),
+		factories.NewSongPtr(videoIDs[1]),
 	}
 
 	tests := []struct {
-		name              string
-		playlistResponses []entities.YTYouTubePlaylistResponse
-		existingIDs       []string
-		newVideoData      []entities.YTVideoListResponse
-		newVideoIDs       []string
-		expectErr         bool
+		name         string
+		videoIDs     []string
+		newVideoData []*youtube.Video
+		newSongData  []*entities.Song
+		expectErr    bool
 	}{
 		{
-			name:              "Success",
-			playlistResponses: playlistResponse,
-			existingIDs:       existingIDs,
-			newVideoData:      newVideoData,
-			newVideoIDs:       newVideoIDs,
-			expectErr:         false,
+			name:         "Success",
+			videoIDs:     videoIDs,
+			newVideoData: newVideoData,
+			newSongData:  newSongData,
+			expectErr:    false,
 		},
 
 		// ... more test cases as needed
@@ -50,20 +50,16 @@ func TestCreateSong_Execute(t *testing.T) {
 			mockYoutubeService := mocks.NewMockYouTubeService(ctrl)
 			mockSongService := mocks.NewMockSongService(ctrl)
 
-			mockYoutubeService.EXPECT().GetPlaylists().Return(tt.playlistResponses, nil).Times(1)
-			mockSongService.EXPECT().GetSongIDs().Return(tt.existingIDs, nil).Times(1)
+			mockYoutubeService.EXPECT().GetVideos(tt.videoIDs).Return(tt.newVideoData, nil).Times(1)
+			mockSongService.EXPECT().CreateSongsInBatch(gomock.Not(gomock.Len(0))).Return(nil).Times(1)
 
-			if tt.newVideoData != nil && len(tt.newVideoData) != 0 {
-				mockYoutubeService.EXPECT().GetSongs(tt.newVideoIDs).Return(tt.newVideoData, nil).Times(1)
-				mockSongService.EXPECT().CreateSongsInBatch(gomock.Not(gomock.Len(0))).Return(nil).Times(1)
-			}
-
-			cs := &CreateSong{
+			u := &CreateSong{
 				youtubeService: mockYoutubeService,
 				songService:    mockSongService,
+				songMapper:     &mappers.SongMapper{},
 			}
 
-			err := cs.Execute()
+			err := u.Execute(tt.videoIDs)
 			if tt.expectErr {
 				assert.Error(t, err, "Expected error")
 			} else {

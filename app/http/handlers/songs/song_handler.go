@@ -101,8 +101,22 @@ func NewCreateSongHandler(u *usecases.CreateSong) *CreateSongHandler {
 
 // Handle updates songs from Youtube.
 func (h *CreateSongHandler) Handle(w http.ResponseWriter, r *http.Request) {
+	// Define a new struct type to hold the request body parameters
+	type requestBody struct {
+		VideoIds []string `json:"videoIds"`
+	}
+
+	// Create a new instance of requestBody
+	rb := &requestBody{}
+
+	// Decode the request body into the rb instance
+	err := json.NewDecoder(r.Body).Decode(rb)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	// Execute the use case with the cronType from the request body
-	err := h.createSongsUsecase.Execute()
+	err = h.createSongsUsecase.Execute(rb.VideoIds)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

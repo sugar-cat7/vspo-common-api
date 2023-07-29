@@ -11,7 +11,6 @@ import (
 	"github.com/sugar-cat7/vspo-common-api/app/http/handlers/songs"
 	"github.com/sugar-cat7/vspo-common-api/domain/services"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/firestore"
-	"github.com/sugar-cat7/vspo-common-api/infrastructure/youtube"
 	usecases2 "github.com/sugar-cat7/vspo-common-api/usecases/channel"
 	"github.com/sugar-cat7/vspo-common-api/usecases/song"
 )
@@ -29,20 +28,24 @@ func InitializeApplication() (*Application, func(), error) {
 	songService := services.NewSongService(repositoriesSongRepository)
 	getAllSongs := usecases.NewGetAllSongs(songService)
 	getAllSongsHandler := handlers.NewGetAllSongsHandler(getAllSongs)
-	client := youtube.ProvideHTTPClient()
-	youTubeService := services.NewYouTubeService(client)
-	createSong := usecases.NewCreateSong(youTubeService, songService)
+	youTubeService, err := services.NewYouTubeService()
+	if err != nil {
+		return nil, nil, err
+	}
+	songMapper := usecases.ProvideSongMapper()
+	createSong := usecases.NewCreateSong(youTubeService, songService, songMapper)
 	createSongHandler := handlers.NewCreateSongHandler(createSong)
-	updateSongs := usecases.NewUpdateSongs(youTubeService, songService)
+	updateSongs := usecases.NewUpdateSongs(youTubeService, songService, songMapper)
 	updateSongsHandler := handlers.NewUpdateSongsHandler(updateSongs)
 	channelRepository := firestore.NewChannelRepository(firestoreClient)
 	repositoriesChannelRepository := firestore.ProvideChannelRepository(firestoreClient, channelRepository)
 	channelService := services.NewChannelService(repositoriesChannelRepository)
 	getChannels := usecases2.NewGetChannels(channelService)
 	getChannelsHandler := handlers2.NewGetChannelsHandler(getChannels)
-	createChannel := usecases2.NewCreateChannel(youTubeService, channelService)
+	channelMapper := usecases2.ProvideChannelMapper()
+	createChannel := usecases2.NewCreateChannel(youTubeService, channelService, channelMapper)
 	createChannelHandler := handlers2.NewCreateChannelHandler(createChannel)
-	updateChannelsFromYoutube := usecases2.NewUpdateChannelsFromYoutube(youTubeService, channelService)
+	updateChannelsFromYoutube := usecases2.NewUpdateChannelsFromYoutube(youTubeService, channelService, channelMapper)
 	updateChannelsFromYoutubeHandler := handlers2.NewUpdateChannelsFromYoutubeHandler(updateChannelsFromYoutube)
 	application := NewApplication(getAllSongsHandler, createSongHandler, updateSongsHandler, getChannelsHandler, createChannelHandler, updateChannelsFromYoutubeHandler)
 	return application, func() {
