@@ -1,38 +1,36 @@
 package usecases
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"github.com/sugar-cat7/vspo-common-api/domain/entities"
 	"github.com/sugar-cat7/vspo-common-api/mocks/factories"
 	mocks "github.com/sugar-cat7/vspo-common-api/mocks/services"
+
+	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
+	"google.golang.org/api/youtube/v3"
 )
 
 func TestCreateChannel_Execute(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	channelIDs := []string{"channelID1", "channelID2"}
-	newChannelData := []entities.Channel{
-		factories.NewChannel(channelIDs[0]),
-		factories.NewChannel(channelIDs[1]),
-	}
-
 	tests := []struct {
-		name           string
-		channelIDs     []string
-		newChannelData []entities.Channel
-		expectErr      bool
+		name               string
+		channelIDs         []string
+		newChannelData     []*youtube.Channel
+		expectCreateError  bool
+		expectExecuteError bool
 	}{
 		{
-			name:           "Success",
-			channelIDs:     channelIDs,
-			newChannelData: newChannelData,
-			expectErr:      false,
+			name:               "Success",
+			channelIDs:         []string{"channelID1", "channelID2"},
+			newChannelData:     []*youtube.Channel{factories.NewYoutubeChannel("channelID1"), factories.NewYoutubeChannel("channelID2")},
+			expectCreateError:  false,
+			expectExecuteError: false,
 		},
-
 		// ... more test cases as needed
 	}
 
@@ -42,15 +40,20 @@ func TestCreateChannel_Execute(t *testing.T) {
 			mockChannelService := mocks.NewMockChannelService(ctrl)
 
 			mockYoutubeService.EXPECT().GetChannels(tt.channelIDs).Return(tt.newChannelData, nil).Times(1)
-			mockChannelService.EXPECT().CreateChannelsInBatch(gomock.Not(gomock.Len(0))).Return(nil).Times(1)
+			if tt.expectCreateError {
+				mockChannelService.EXPECT().CreateChannelsInBatch(gomock.Not(gomock.Len(0))).Return(errors.New("create error")).Times(1)
+			} else {
+				mockChannelService.EXPECT().CreateChannelsInBatch(gomock.Not(gomock.Len(0))).Return(nil).Times(1)
+			}
 
 			cc := &CreateChannel{
 				youtubeService: mockYoutubeService,
 				channelService: mockChannelService,
+				channelMapper:  &mappers.ChannelMapper{},
 			}
 
 			err := cc.Execute(tt.channelIDs)
-			if tt.expectErr {
+			if tt.expectExecuteError {
 				assert.Error(t, err, "Expected error")
 			} else {
 				assert.NoError(t, err, "Expected no error")

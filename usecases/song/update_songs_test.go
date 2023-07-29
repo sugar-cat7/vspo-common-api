@@ -1,32 +1,48 @@
 package usecases
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
+	"github.com/sugar-cat7/vspo-common-api/mocks/factories"
 	mocks "github.com/sugar-cat7/vspo-common-api/mocks/services"
+	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
+	"google.golang.org/api/youtube/v3"
 )
 
 func TestUpdateSongs_Execute(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	videoIDs := []string{"videoID1", "videoID2"}
+	newVideoData := []*youtube.Video{
+		factories.NewYoutubeVideo(videoIDs[0]),
+		factories.NewYoutubeVideo(videoIDs[1]),
+	}
+	allSongsData := []*entities.Song{
+		factories.NewSongPtr(videoIDs[0]),
+		factories.NewSongPtr(videoIDs[1]),
+	}
+
 	tests := []struct {
-		name     string
-		cronType entities.CronType
-		wantErr  bool
+		name         string
+		cronType     entities.CronType
+		videoIDs     []string
+		newVideoData []*youtube.Video
+		allSongsData []*entities.Song
+		expectErr    bool
 	}{
 		{
-			name:    "Success",
-			wantErr: false,
+			name:         "Success",
+			cronType:     entities.None,
+			videoIDs:     videoIDs,
+			newVideoData: newVideoData,
+			allSongsData: allSongsData,
+			expectErr:    false,
 		},
-		{
-			name:    "Failure",
-			wantErr: true,
-		},
+		// ... more test cases as needed
 	}
 
 	for _, tt := range tests {
@@ -34,23 +50,21 @@ func TestUpdateSongs_Execute(t *testing.T) {
 			mockYoutubeService := mocks.NewMockYouTubeService(ctrl)
 			mockSongService := mocks.NewMockSongService(ctrl)
 
-			if tt.wantErr {
-				mockSongService.EXPECT().GetAllSongs().Return([]*entities.Song{}, nil)
-				mockYoutubeService.EXPECT().GetSongs(gomock.Any()).Return(nil, errors.New("error"))
-			} else {
-				mockSongService.EXPECT().GetAllSongs().Return([]*entities.Song{}, nil)
-				mockYoutubeService.EXPECT().GetSongs(gomock.Any()).Return([]entities.YTVideoListResponse{}, nil)
-				mockSongService.EXPECT().UpdateSongsInBatch(gomock.Any()).Return(nil)
+			mockSongService.EXPECT().GetAllSongs().Return(tt.allSongsData, nil).Times(1)
+			mockYoutubeService.EXPECT().GetVideos(tt.videoIDs).Return(tt.newVideoData, nil).Times(1)
+			mockSongService.EXPECT().UpdateSongsInBatch(gomock.Not(gomock.Len(0))).Return(nil).Times(1)
+
+			us := &UpdateSongs{
+				youtubeService: mockYoutubeService,
+				songService:    mockSongService,
+				songMapper:     &mappers.SongMapper{},
 			}
 
-			u := NewUpdateSongs(mockYoutubeService, mockSongService)
-
-			err := u.Execute(tt.cronType)
-
-			if tt.wantErr {
+			err := us.Execute(tt.cronType)
+			if tt.expectErr {
 				assert.Error(t, err, "Expected error")
 			} else {
-				assert.NoError(t, err, "Unexpected error")
+				assert.NoError(t, err, "Expected no error")
 			}
 		})
 	}

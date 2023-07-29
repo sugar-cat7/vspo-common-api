@@ -8,7 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	entities "github.com/sugar-cat7/vspo-common-api/domain/entities"
+	youtube "google.golang.org/api/youtube/v3"
 )
 
 // MockYouTubeService is a mock of YouTubeService interface.
@@ -35,10 +35,10 @@ func (m *MockYouTubeService) EXPECT() *MockYouTubeServiceMockRecorder {
 }
 
 // GetChannels mocks base method.
-func (m *MockYouTubeService) GetChannels(arg0 []string) ([]entities.Channel, error) {
+func (m *MockYouTubeService) GetChannels(arg0 []string) ([]*youtube.Channel, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetChannels", arg0)
-	ret0, _ := ret[0].([]entities.Channel)
+	ret0, _ := ret[0].([]*youtube.Channel)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -50,31 +50,31 @@ func (mr *MockYouTubeServiceMockRecorder) GetChannels(arg0 interface{}) *gomock.
 }
 
 // GetPlaylists mocks base method.
-func (m *MockYouTubeService) GetPlaylists() ([]entities.YTYouTubePlaylistResponse, error) {
+func (m *MockYouTubeService) GetPlaylists(arg0 []string) ([]*youtube.Playlist, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPlaylists")
-	ret0, _ := ret[0].([]entities.YTYouTubePlaylistResponse)
+	ret := m.ctrl.Call(m, "GetPlaylists", arg0)
+	ret0, _ := ret[0].([]*youtube.Playlist)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetPlaylists indicates an expected call of GetPlaylists.
-func (mr *MockYouTubeServiceMockRecorder) GetPlaylists() *gomock.Call {
+func (mr *MockYouTubeServiceMockRecorder) GetPlaylists(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPlaylists", reflect.TypeOf((*MockYouTubeService)(nil).GetPlaylists))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPlaylists", reflect.TypeOf((*MockYouTubeService)(nil).GetPlaylists), arg0)
 }
 
-// GetSongs mocks base method.
-func (m *MockYouTubeService) GetSongs(arg0 []string) ([]entities.YTVideoListResponse, error) {
+// GetVideos mocks base method.
+func (m *MockYouTubeService) GetVideos(arg0 []string) ([]*youtube.Video, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetSongs", arg0)
-	ret0, _ := ret[0].([]entities.YTVideoListResponse)
+	ret := m.ctrl.Call(m, "GetVideos", arg0)
+	ret0, _ := ret[0].([]*youtube.Video)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetSongs indicates an expected call of GetSongs.
-func (mr *MockYouTubeServiceMockRecorder) GetSongs(arg0 interface{}) *gomock.Call {
+// GetVideos indicates an expected call of GetVideos.
+func (mr *MockYouTubeServiceMockRecorder) GetVideos(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSongs", reflect.TypeOf((*MockYouTubeService)(nil).GetSongs), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVideos", reflect.TypeOf((*MockYouTubeService)(nil).GetVideos), arg0)
 }

@@ -9,7 +9,6 @@ import (
 	song_handlers "github.com/sugar-cat7/vspo-common-api/app/http/handlers/songs"
 	"github.com/sugar-cat7/vspo-common-api/domain/services"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/firestore"
-	"github.com/sugar-cat7/vspo-common-api/infrastructure/youtube"
 	channel_usecases "github.com/sugar-cat7/vspo-common-api/usecases/channel"
 	song_usecases "github.com/sugar-cat7/vspo-common-api/usecases/song"
 )
@@ -40,5 +39,5 @@ func NewApplication(getAllSongsHandler *song_handlers.GetAllSongsHandler, create
 
 // InitializeApplication initializes the entire application with all its dependencies using wire.
 func InitializeApplication() (*Application, func(), error) {
-	panic(wire.Build(services.Set, firestore.Set, youtube.Set, song_usecases.Set, channel_usecases.Set, song_handlers.Set, channel_handlers.Set, NewApplication))
+	panic(wire.Build(services.Set, firestore.Set, song_usecases.Set, channel_usecases.Set, song_handlers.Set, channel_handlers.Set, NewApplication))
 }
