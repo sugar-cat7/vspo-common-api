@@ -10,7 +10,7 @@ import (
 	mocks "github.com/sugar-cat7/vspo-common-api/mocks/services"
 )
 
-func TestUpdateSongsFromYoutube_Execute(t *testing.T) {
+func TestUpdateSongs_Execute(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -43,7 +43,7 @@ func TestUpdateSongsFromYoutube_Execute(t *testing.T) {
 				mockSongService.EXPECT().UpdateSongsInBatch(gomock.Any()).Return(nil)
 			}
 
-			u := NewUpdateSongsFromYoutube(mockYoutubeService, mockSongService)
+			u := NewUpdateSongs(mockYoutubeService, mockSongService)
 
 			err := u.Execute(tt.cronType)
 

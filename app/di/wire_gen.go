@@ -33,8 +33,8 @@ func InitializeApplication() (*Application, func(), error) {
 	youTubeService := services.NewYouTubeService(client)
 	createSong := usecases.NewCreateSong(youTubeService, songService)
 	createSongHandler := handlers.NewCreateSongHandler(createSong)
-	updateSongsFromYoutube := usecases.NewUpdateSongsFromYoutube(youTubeService, songService)
-	updateSongsFromYoutubeHandler := handlers.NewUpdateSongsFromYoutubeHandler(updateSongsFromYoutube)
+	updateSongs := usecases.NewUpdateSongs(youTubeService, songService)
+	updateSongsHandler := handlers.NewUpdateSongsHandler(updateSongs)
 	channelRepository := firestore.NewChannelRepository(firestoreClient)
 	repositoriesChannelRepository := firestore.ProvideChannelRepository(firestoreClient, channelRepository)
 	channelService := services.NewChannelService(repositoriesChannelRepository)
@@ -44,7 +44,7 @@ func InitializeApplication() (*Application, func(), error) {
 	createChannelHandler := handlers2.NewCreateChannelHandler(createChannel)
 	updateChannelsFromYoutube := usecases2.NewUpdateChannelsFromYoutube(youTubeService, channelService)
 	updateChannelsFromYoutubeHandler := handlers2.NewUpdateChannelsFromYoutubeHandler(updateChannelsFromYoutube)
-	application := NewApplication(getAllSongsHandler, createSongHandler, updateSongsFromYoutubeHandler, getChannelsHandler, createChannelHandler, updateChannelsFromYoutubeHandler)
+	application := NewApplication(getAllSongsHandler, createSongHandler, updateSongsHandler, getChannelsHandler, createChannelHandler, updateChannelsFromYoutubeHandler)
 	return application, func() {
 	}, nil
 }
@@ -55,20 +55,20 @@ func InitializeApplication() (*Application, func(), error) {
 type Application struct {
 	GetAllSongsHandler               *handlers.GetAllSongsHandler
 	CreateSongHandler                *handlers.CreateSongHandler
-	UpdateSongsFromYoutubeHandler    *handlers.UpdateSongsFromYoutubeHandler
+	UpdateSongsHandler               *handlers.UpdateSongsHandler
 	GetChannelsHandler               *handlers2.GetChannelsHandler
 	CreateChannelHandler             *handlers2.CreateChannelHandler
 	UpdateChannelsFromYoutubeHandler *handlers2.UpdateChannelsFromYoutubeHandler
 }
 
 // NewApplication creates a new Application.
-func NewApplication(getAllSongsHandler *handlers.GetAllSongsHandler, createSongHandler *handlers.CreateSongHandler, updateSongsFromYoutubeHandler *handlers.UpdateSongsFromYoutubeHandler,
+func NewApplication(getAllSongsHandler *handlers.GetAllSongsHandler, createSongHandler *handlers.CreateSongHandler, updateSongsHandler *handlers.UpdateSongsHandler,
 	getChannelsHandler *handlers2.GetChannelsHandler, createChannelHandler *handlers2.CreateChannelHandler, updateChannelsFromYoutubeHandler *handlers2.UpdateChannelsFromYoutubeHandler,
 ) *Application {
 	return &Application{
 		GetAllSongsHandler:               getAllSongsHandler,
 		CreateSongHandler:                createSongHandler,
-		UpdateSongsFromYoutubeHandler:    updateSongsFromYoutubeHandler,
+		UpdateSongsHandler:               updateSongsHandler,
 		GetChannelsHandler:               getChannelsHandler,
 		CreateChannelHandler:             createChannelHandler,
 		UpdateChannelsFromYoutubeHandler: updateChannelsFromYoutubeHandler,

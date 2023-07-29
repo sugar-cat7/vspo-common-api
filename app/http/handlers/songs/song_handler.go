@@ -36,20 +36,20 @@ func (h *GetAllSongsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// UpdateSongsFromYoutubeHandler is a handler for updating songs from Youtube.
-type UpdateSongsFromYoutubeHandler struct {
-	updateSongsUsecase *usecases.UpdateSongsFromYoutube
+// UpdateSongsHandler is a handler for updating songs from Youtube.
+type UpdateSongsHandler struct {
+	updateSongsUsecase *usecases.UpdateSongs
 }
 
-// NewUpdateSongsFromYoutubeHandler creates a new UpdateSongsFromYoutubeHandler.
-func NewUpdateSongsFromYoutubeHandler(u *usecases.UpdateSongsFromYoutube) *UpdateSongsFromYoutubeHandler {
-	return &UpdateSongsFromYoutubeHandler{
+// NewUpdateSongsHandler creates a new UpdateSongsHandler.
+func NewUpdateSongsHandler(u *usecases.UpdateSongs) *UpdateSongsHandler {
+	return &UpdateSongsHandler{
 		updateSongsUsecase: u,
 	}
 }
 
 // Handle updates songs from Youtube.
-func (h *UpdateSongsFromYoutubeHandler) Handle(w http.ResponseWriter, r *http.Request) {
+func (h *UpdateSongsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	// Define a new struct type to hold the request body parameters
 	type requestBody struct {
 		CronType string `json:"cronType"`
