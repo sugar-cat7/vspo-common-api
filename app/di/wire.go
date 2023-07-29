@@ -18,20 +18,20 @@ import (
 type Application struct {
 	GetAllSongsHandler               *song_handlers.GetAllSongsHandler
 	CreateSongHandler                *song_handlers.CreateSongHandler
-	UpdateSongsFromYoutubeHandler    *song_handlers.UpdateSongsFromYoutubeHandler
+	UpdateSongsHandler               *song_handlers.UpdateSongsHandler
 	GetChannelsHandler               *channel_handlers.GetChannelsHandler
 	CreateChannelHandler             *channel_handlers.CreateChannelHandler
 	UpdateChannelsFromYoutubeHandler *channel_handlers.UpdateChannelsFromYoutubeHandler
 }
 
 // NewApplication creates a new Application.
-func NewApplication(getAllSongsHandler *song_handlers.GetAllSongsHandler, createSongHandler *song_handlers.CreateSongHandler, updateSongsFromYoutubeHandler *song_handlers.UpdateSongsFromYoutubeHandler,
+func NewApplication(getAllSongsHandler *song_handlers.GetAllSongsHandler, createSongHandler *song_handlers.CreateSongHandler, updateSongsHandler *song_handlers.UpdateSongsHandler,
 	getChannelsHandler *channel_handlers.GetChannelsHandler, createChannelHandler *channel_handlers.CreateChannelHandler, updateChannelsFromYoutubeHandler *channel_handlers.UpdateChannelsFromYoutubeHandler,
 ) *Application {
 	return &Application{
 		GetAllSongsHandler:               getAllSongsHandler,
 		CreateSongHandler:                createSongHandler,
-		UpdateSongsFromYoutubeHandler:    updateSongsFromYoutubeHandler,
+		UpdateSongsHandler:               updateSongsHandler,
 		GetChannelsHandler:               getChannelsHandler,
 		CreateChannelHandler:             createChannelHandler,
 		UpdateChannelsFromYoutubeHandler: updateChannelsFromYoutubeHandler,

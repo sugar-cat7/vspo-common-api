@@ -1,7 +1,6 @@
 package util
 
 import (
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -62,21 +61,21 @@ func TestUpdateViewCounts(t *testing.T) {
 		{
 			name:        "Success_Weekly",
 			cronType:    entities.Weekly,
-			viewCount:   "2000",
+			viewCount:   "1000",
 			songs:       []*entities.Song{&song},
 			expectError: false,
 		},
 		{
 			name:        "Success_Monthly",
 			cronType:    entities.Monthly,
-			viewCount:   "3000",
+			viewCount:   "1000",
 			songs:       []*entities.Song{&song},
 			expectError: false,
 		},
 		{
 			name:        "Success_None",
 			cronType:    entities.None,
-			viewCount:   "4000",
+			viewCount:   "1000",
 			songs:       []*entities.Song{&song},
 			expectError: false,
 		},
@@ -88,31 +87,21 @@ func TestUpdateViewCounts(t *testing.T) {
 			videoListResponse := factories.NewYTVideoListResponse(videoID)
 			videoListResponse.Items[0].Statistics.ViewCount = tc.viewCount
 			videoLists := []entities.YTVideoListResponse{videoListResponse}
-			total, err := strconv.Atoi(song.ViewCount.Total)
-			if err != nil {
-				t.Errorf("Failed to convert song total view count to integer: %v", err)
-			}
-			err = UpdateViewCounts(tc.cronType, videoLists, tc.songs)
+
+			err := UpdateViewCounts(tc.cronType, videoLists, tc.songs)
 			if tc.expectError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-
 				// Check the updated song view count
 				for _, song := range tc.songs {
-					videoViewCount, err := strconv.Atoi(tc.viewCount)
-					if err != nil {
-						t.Errorf("Failed to convert video view count to integer: %v", err)
-					}
-
-					c := strconv.Itoa(videoViewCount - total)
 					switch tc.cronType {
 					case entities.Daily:
-						assert.Equal(t, c, song.ViewCount.Daily)
+						assert.Equal(t, tc.viewCount, song.ViewCount.Daily)
 					case entities.Weekly:
-						assert.Equal(t, c, song.ViewCount.Weekly)
+						assert.Equal(t, tc.viewCount, song.ViewCount.Weekly)
 					case entities.Monthly:
-						assert.Equal(t, c, song.ViewCount.Monthly)
+						assert.Equal(t, tc.viewCount, song.ViewCount.Monthly)
 					}
 				}
 			}

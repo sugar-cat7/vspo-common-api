@@ -6,22 +6,22 @@ import (
 	"github.com/sugar-cat7/vspo-common-api/util"
 )
 
-// UpdateSongsFromYoutube is a use case for updating songs in Firestore from YouTube.
-type UpdateSongsFromYoutube struct {
+// UpdateSongs is a use case for updating songs in Firestore from YouTube.
+type UpdateSongs struct {
 	youtubeService services.YouTubeService
 	songService    services.SongService
 }
 
-// NewUpdateSongsFromYoutube creates a new UpdateSongsFromYoutube.
-func NewUpdateSongsFromYoutube(youtubeService services.YouTubeService, songService services.SongService) *UpdateSongsFromYoutube {
-	return &UpdateSongsFromYoutube{
+// NewUpdateSongs creates a new UpdateSongs.
+func NewUpdateSongs(youtubeService services.YouTubeService, songService services.SongService) *UpdateSongs {
+	return &UpdateSongs{
 		youtubeService: youtubeService,
 		songService:    songService,
 	}
 }
 
 // Execute updates the songs in Firestore from YouTube.
-func (u *UpdateSongsFromYoutube) Execute(cronType entities.CronType) error {
+func (u *UpdateSongs) Execute(cronType entities.CronType) error {
 	// Get all song IDs from Firestore
 	videos, err := u.songService.GetAllSongs()
 	if err != nil {

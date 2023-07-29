@@ -2,7 +2,6 @@ package util
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
@@ -94,24 +93,14 @@ func UpdateViewCounts(cronType entities.CronType, videoLists []entities.YTVideoL
 			return fmt.Errorf("no video data for song with ID %s", song.ID)
 		}
 
-		videoViewCount, err := strconv.Atoi(video.Statistics.ViewCount)
-		if err != nil {
-			return fmt.Errorf("error converting video view count to int: %v", err)
-		}
-
-		oldTotalViewCount, err := strconv.Atoi(song.ViewCount.Total)
-		if err != nil {
-			return fmt.Errorf("error converting daily view count to int: %v", err)
-		}
-
 		// Update the views
 		switch cronType {
 		case entities.Daily:
-			song.ViewCount.Daily = strconv.Itoa(videoViewCount - oldTotalViewCount)
+			song.ViewCount.Daily = video.Statistics.ViewCount
 		case entities.Weekly:
-			song.ViewCount.Weekly = strconv.Itoa(videoViewCount - oldTotalViewCount)
+			song.ViewCount.Weekly = video.Statistics.ViewCount
 		case entities.Monthly:
-			song.ViewCount.Monthly = strconv.Itoa(videoViewCount - oldTotalViewCount)
+			song.ViewCount.Monthly = video.Statistics.ViewCount
 		}
 
 		song.ViewCount.Total = video.Statistics.ViewCount
