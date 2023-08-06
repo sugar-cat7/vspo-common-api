@@ -20,7 +20,12 @@ func NewGetAllSongsHandler(u *usecases.GetAllSongs) *GetAllSongsHandler {
 	}
 }
 
-// Handle returns all songs.
+// @Summary Get all songs
+// @Description Retrieve all songs
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} entities.Song
+// @Router /songs [get]
 func (h *GetAllSongsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	songs, err := h.getAllSongsUsecase.Execute()
 	if err != nil {
@@ -48,7 +53,13 @@ func NewUpdateSongsHandler(u *usecases.UpdateSongs) *UpdateSongsHandler {
 	}
 }
 
-// Handle updates songs from Youtube.
+// @Summary Update songs from Youtube
+// @Description Update songs based on provided cronType
+// @Accept  json
+// @Produce  json
+// @Param cronType body string true "Type of the cron"
+// @Success 200 {string} string "Songs updated successfully"
+// @Router /songs [put]
 func (h *UpdateSongsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	// Define a new struct type to hold the request body parameters
 	type requestBody struct {
@@ -99,7 +110,13 @@ func NewCreateSongHandler(u *usecases.CreateSong) *CreateSongHandler {
 	}
 }
 
-// Handle updates songs from Youtube.
+// @Summary Create Song from Youtube
+// @Description Updates songs by fetching from Youtube using provided Video IDs.
+// @Accept  json
+// @Produce  json
+// @Param videoIds body []string true "Array of Video IDs"
+// @Success 200 {string} string "Songs updated successfully"
+// @Router /songs [post]
 func (h *CreateSongHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	// Define a new struct type to hold the request body parameters
 	type requestBody struct {

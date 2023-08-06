@@ -1,0 +1,220 @@
+basePath: /api/v1
+definitions:
+  entities.Channel:
+    properties:
+      id:
+        type: string
+      snippet:
+        $ref: '#/definitions/entities.ChannelSnippet'
+      statistics:
+        $ref: '#/definitions/entities.ChannelStatistics'
+    type: object
+  entities.ChannelSnippet:
+    properties:
+      customUrl:
+        type: string
+      description:
+        type: string
+      publishedAt:
+        type: string
+      thumbnails:
+        $ref: '#/definitions/entities.Thumbnails'
+      title:
+        type: string
+    type: object
+  entities.ChannelStatistics:
+    properties:
+      hiddenSubscriberCount:
+        type: boolean
+      subscriberCount:
+        type: string
+      videoCount:
+        type: string
+      viewCount:
+        type: string
+    type: object
+  entities.Song:
+    properties:
+      channelId:
+        type: string
+      channelTitle:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      publishedAt:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      thumbnails:
+        $ref: '#/definitions/entities.Thumbnails'
+      title:
+        type: string
+      viewCount:
+        $ref: '#/definitions/entities.Views'
+    type: object
+  entities.Thumbnail:
+    properties:
+      height:
+        type: integer
+      url:
+        type: string
+      width:
+        type: integer
+    type: object
+  entities.Thumbnails:
+    properties:
+      default:
+        $ref: '#/definitions/entities.Thumbnail'
+      high:
+        $ref: '#/definitions/entities.Thumbnail'
+      maxres:
+        $ref: '#/definitions/entities.Thumbnail'
+      medium:
+        $ref: '#/definitions/entities.Thumbnail'
+      standard:
+        $ref: '#/definitions/entities.Thumbnail'
+    type: object
+  entities.Views:
+    properties:
+      daily:
+        type: string
+      monthly:
+        type: string
+      total:
+        type: string
+      weekly:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: This is the API documentation for VSPO Common services.
+  title: VSPO Common API
+  version: "1.0"
+paths:
+  /channels:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all channels based on provided IDs.
+      parameters:
+      - collectionFormat: csv
+        description: Comma-separated list of channel IDs
+        in: query
+        items:
+          type: string
+        name: ids
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entities.Channel'
+            type: array
+      summary: Get Channels
+    post:
+      consumes:
+      - application/json
+      description: Creates channels by fetching from Youtube using provided Channel
+        IDs.
+      parameters:
+      - description: Array of Channel IDs
+        in: body
+        name: channelIds
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Channels created successfully
+          schema:
+            type: string
+      summary: Create Channels from Youtube
+    put:
+      consumes:
+      - application/json
+      description: Updates channels by fetching from Youtube using provided Channel
+        IDs.
+      parameters:
+      - description: Array of Channel IDs
+        in: body
+        name: channelIds
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Channels updated successfully
+          schema:
+            type: string
+      summary: Update Channels from Youtube
+  /songs:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all songs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entities.Song'
+            type: array
+      summary: Get all songs
+    post:
+      consumes:
+      - application/json
+      description: Updates songs by fetching from Youtube using provided Video IDs.
+      parameters:
+      - description: Array of Video IDs
+        in: body
+        name: videoIds
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Songs updated successfully
+          schema:
+            type: string
+      summary: Create Song from Youtube
+    put:
+      consumes:
+      - application/json
+      description: Update songs based on provided cronType
+      parameters:
+      - description: Type of the cron
+        in: body
+        name: cronType
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Songs updated successfully
+          schema:
+            type: string
+      summary: Update songs from Youtube
+swagger: "2.0"
