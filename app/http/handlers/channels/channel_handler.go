@@ -20,7 +20,13 @@ func NewGetChannelsHandler(u *usecases.GetChannels) *GetChannelsHandler {
 	}
 }
 
-// Handle returns all channels.
+// @Summary Get Channels
+// @Description Retrieves all channels based on provided IDs.
+// @Accept  json
+// @Produce  json
+// @Param ids query []string false "Comma-separated list of channel IDs"
+// @Success 200 {array} entities.Channel
+// @Router /channels [get]
 func (h *GetChannelsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	// Parse the query parameters for "ids", which should be a comma-separated list of channel IDs.
 	idsParam := r.URL.Query().Get("ids")
@@ -51,7 +57,13 @@ func NewUpdateChannelsFromYoutubeHandler(u *usecases.UpdateChannelsFromYoutube) 
 	}
 }
 
-// Handle updates channels from Youtube.
+// @Summary Update Channels from Youtube
+// @Description Updates channels by fetching from Youtube using provided Channel IDs.
+// @Accept  json
+// @Produce  json
+// @Param channelIds body []string true "Array of Channel IDs"
+// @Success 200 {string} string "Channels updated successfully"
+// @Router /channels [put]
 func (h *UpdateChannelsFromYoutubeHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	// Define a new struct type to hold the request body parameters
 	type requestBody struct {
@@ -95,7 +107,13 @@ func NewCreateChannelHandler(u *usecases.CreateChannel) *CreateChannelHandler {
 	}
 }
 
-// Handle updates channels from Youtube.
+// @Summary Create Channels from Youtube
+// @Description Creates channels by fetching from Youtube using provided Channel IDs.
+// @Accept  json
+// @Produce  json
+// @Param channelIds body []string true "Array of Channel IDs"
+// @Success 200 {string} string "Channels created successfully"
+// @Router /channels [post]
 func (h *CreateChannelHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	// Define a new struct type to hold the request body parameters
 	type requestBody struct {
