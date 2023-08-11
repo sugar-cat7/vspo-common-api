@@ -9,13 +9,13 @@ import (
 	"google.golang.org/api/youtube/v3"
 )
 
-func NewSongPtr(videoID string) *entities.Song {
-	song := NewSong(videoID)
-	return &song
+func NewVideoPtr(videoID string) *entities.Video {
+	video := NewVideo(videoID)
+	return &video
 }
 
-func NewSong(videoID string) entities.Song {
-	return entities.Song{
+func NewVideo(videoID string) entities.Video {
+	return entities.Video{
 		ID:          videoID,
 		Title:       "title1",
 		Description: "description1",

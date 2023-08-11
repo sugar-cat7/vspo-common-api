@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
+	"github.com/sugar-cat7/vspo-common-api/infrastructure/http/mappers"
 	usecases "github.com/sugar-cat7/vspo-common-api/usecases/song"
 )
 
@@ -20,11 +21,13 @@ func NewGetAllSongsHandler(u *usecases.GetAllSongs) *GetAllSongsHandler {
 	}
 }
 
+type VideosResponse mappers.VideosResponse
+
 // @Summary Get all songs
 // @Description Retrieve all songs
 // @Accept  json
 // @Produce  json
-// @Success 200 {array} entities.Song
+// @Success 200 {object} VideosResponse
 // @Router /songs [get]
 func (h *GetAllSongsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	songs, err := h.getAllSongsUsecase.Execute()
@@ -34,7 +37,7 @@ func (h *GetAllSongsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(songs)
+	err = json.NewEncoder(w).Encode(mappers.MapVideosToResponse(songs))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

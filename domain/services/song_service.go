@@ -8,14 +8,14 @@ import (
 
 // SongService is an interface for a song service.
 type SongService interface {
-	CreateSong(song *entities.Song) error
-	GetAllSongs() ([]*entities.Song, error)
-	GetSongByID(id string) (*entities.Song, error)
+	CreateSong(song *entities.Video) error
+	GetAllSongs() ([]*entities.Video, error)
+	GetSongByID(id string) (*entities.Video, error)
 	GetSongIDs() ([]string, error)
-	UpdateSong(song *entities.Song) error
+	UpdateSong(song *entities.Video) error
 	DeleteSong(id string) error
-	CreateSongsInBatch(songs []*entities.Song) error
-	UpdateSongsInBatch(songs []*entities.Song) error
+	CreateSongsInBatch(songs []*entities.Video) error
+	UpdateSongsInBatch(songs []*entities.Video) error
 }
 type songService struct {
 	repo repositories.SongRepository
@@ -27,12 +27,12 @@ func NewSongService(repo repositories.SongRepository) SongService {
 }
 
 // CreateSong creates a new song.
-func (s *songService) CreateSong(song *entities.Song) error {
+func (s *songService) CreateSong(song *entities.Video) error {
 	return s.repo.Create(song)
 }
 
 // GetAllSongs retrieves all songs.
-func (s *songService) GetAllSongs() ([]*entities.Song, error) {
+func (s *songService) GetAllSongs() ([]*entities.Video, error) {
 	return s.repo.GetAll()
 }
 
@@ -50,12 +50,12 @@ func (s *songService) GetSongIDs() ([]string, error) {
 }
 
 // GetSongByID retrieves a song by its ID.
-func (s *songService) GetSongByID(id string) (*entities.Song, error) {
+func (s *songService) GetSongByID(id string) (*entities.Video, error) {
 	return s.repo.GetByID(id)
 }
 
 // UpdateSong updates a song.
-func (s *songService) UpdateSong(song *entities.Song) error {
+func (s *songService) UpdateSong(song *entities.Video) error {
 	return s.repo.Update(song)
 }
 
@@ -65,11 +65,11 @@ func (s *songService) DeleteSong(id string) error {
 }
 
 // UpdateSongsInBatch updates multiple songs.
-func (s *songService) UpdateSongsInBatch(songs []*entities.Song) error {
+func (s *songService) UpdateSongsInBatch(songs []*entities.Video) error {
 	return s.repo.UpdateInBatch(songs)
 }
 
 // UpdateSongsInBatch updates multiple songs.
-func (s *songService) CreateSongsInBatch(songs []*entities.Song) error {
+func (s *songService) CreateSongsInBatch(songs []*entities.Video) error {
 	return s.repo.CreateInBatch(songs)
 }

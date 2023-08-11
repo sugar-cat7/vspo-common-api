@@ -8,26 +8,26 @@ import (
 
 // Channel represents a YouTube channel.
 type Channel struct {
-	ID         string            `json:"id" firestore:"id"`
-	Snippet    ChannelSnippet    `json:"snippet" firestore:"snippet"`
-	Statistics ChannelStatistics `json:"statistics" firestore:"statistics"`
+	ID         string            `firestore:"id"`
+	Snippet    ChannelSnippet    `firestore:"snippet"`
+	Statistics ChannelStatistics `firestore:"statistics"`
 }
 
 // ChannelSnippet represents a YouTube channel snippet.
 type ChannelSnippet struct {
-	Title       string     `json:"title" firestore:"title"`
-	Description string     `json:"description" firestore:"description"`
-	CustomURL   string     `json:"customUrl" firestore:"customUrl"`
-	PublishedAt time.Time  `json:"publishedAt" firestore:"publishedAt"`
-	Thumbnails  Thumbnails `json:"thumbnails" firestore:"thumbnails"`
+	Title       string     `firestore:"title"`
+	Description string     `firestore:"description"`
+	CustomURL   string     `firestore:"customUrl"`
+	PublishedAt time.Time  `firestore:"publishedAt"`
+	Thumbnails  Thumbnails `firestore:"thumbnails"`
 }
 
 // ChannelStatistics represents a YouTube channel statistics.
 type ChannelStatistics struct {
-	ViewCount             string `json:"viewCount" firestore:"viewCount"`
-	SubscriberCount       string `json:"subscriberCount" firestore:"subscriberCount"`
-	HiddenSubscriberCount bool   `json:"hiddenSubscriberCount" firestore:"hiddenSubscriberCount"`
-	VideoCount            string `json:"videoCount" firestore:"videoCount"`
+	ViewCount             string `firestore:"viewCount"`
+	SubscriberCount       string `firestore:"subscriberCount"`
+	HiddenSubscriberCount bool   `firestore:"hiddenSubscriberCount"`
+	VideoCount            string `firestore:"videoCount"`
 }
 
 // GetID returns the ID of the channel.

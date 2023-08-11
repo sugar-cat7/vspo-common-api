@@ -31,7 +31,7 @@ func (u *UpdateSongs) Execute(cronType entities.CronType) error {
 		return err
 	}
 
-	videoIDs := util.GetSongIDs(allVideos)
+	videoIDs := util.GetVideoIDs(allVideos)
 	// Fetch video data from YouTube API
 	ytVideos, err := u.youtubeService.GetVideos(videoIDs)
 	if err != nil {

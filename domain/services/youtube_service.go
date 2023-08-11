@@ -57,7 +57,7 @@ func (s *youtubeServiceImpl) GetVideos(videoIDs []string) ([]*youtube.Video, err
 		return nil, err
 	}
 	for _, chunk := range videoIDChunks {
-		call := s.Service.Videos.List([]string{"snippet", "statistics"}).Id(strings.Join(chunk, ","))
+		call := s.Service.Videos.List([]string{"snippet", "liveStreamingDetails", "statistics"}).Id(strings.Join(chunk, ","))
 		response, err := call.Do()
 		if err != nil {
 			return nil, fmt.Errorf("error making Videos.List call: %v", err)

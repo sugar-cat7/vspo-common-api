@@ -35,7 +35,7 @@ func (m *MockSongService) EXPECT() *MockSongServiceMockRecorder {
 }
 
 // CreateSong mocks base method.
-func (m *MockSongService) CreateSong(arg0 *entities.Song) error {
+func (m *MockSongService) CreateSong(arg0 *entities.Video) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateSong", arg0)
 	ret0, _ := ret[0].(error)
@@ -49,7 +49,7 @@ func (mr *MockSongServiceMockRecorder) CreateSong(arg0 interface{}) *gomock.Call
 }
 
 // CreateSongsInBatch mocks base method.
-func (m *MockSongService) CreateSongsInBatch(arg0 []*entities.Song) error {
+func (m *MockSongService) CreateSongsInBatch(arg0 []*entities.Video) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateSongsInBatch", arg0)
 	ret0, _ := ret[0].(error)
@@ -77,10 +77,10 @@ func (mr *MockSongServiceMockRecorder) DeleteSong(arg0 interface{}) *gomock.Call
 }
 
 // GetAllSongs mocks base method.
-func (m *MockSongService) GetAllSongs() ([]*entities.Song, error) {
+func (m *MockSongService) GetAllSongs() ([]*entities.Video, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllSongs")
-	ret0, _ := ret[0].([]*entities.Song)
+	ret0, _ := ret[0].([]*entities.Video)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -92,10 +92,10 @@ func (mr *MockSongServiceMockRecorder) GetAllSongs() *gomock.Call {
 }
 
 // GetSongByID mocks base method.
-func (m *MockSongService) GetSongByID(arg0 string) (*entities.Song, error) {
+func (m *MockSongService) GetSongByID(arg0 string) (*entities.Video, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetSongByID", arg0)
-	ret0, _ := ret[0].(*entities.Song)
+	ret0, _ := ret[0].(*entities.Video)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -122,7 +122,7 @@ func (mr *MockSongServiceMockRecorder) GetSongIDs() *gomock.Call {
 }
 
 // UpdateSong mocks base method.
-func (m *MockSongService) UpdateSong(arg0 *entities.Song) error {
+func (m *MockSongService) UpdateSong(arg0 *entities.Video) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateSong", arg0)
 	ret0, _ := ret[0].(error)
@@ -136,7 +136,7 @@ func (mr *MockSongServiceMockRecorder) UpdateSong(arg0 interface{}) *gomock.Call
 }
 
 // UpdateSongsInBatch mocks base method.
-func (m *MockSongService) UpdateSongsInBatch(arg0 []*entities.Song) error {
+func (m *MockSongService) UpdateSongsInBatch(arg0 []*entities.Video) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateSongsInBatch", arg0)
 	ret0, _ := ret[0].(error)

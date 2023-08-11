@@ -1,15 +1,29 @@
 basePath: /api/v1
 definitions:
-  entities.Channel:
+  handlers.ChannelsResponse:
+    properties:
+      channels:
+        items:
+          $ref: '#/definitions/mappers.ChannelResponse'
+        type: array
+    type: object
+  handlers.VideosResponse:
+    properties:
+      videos:
+        items:
+          $ref: '#/definitions/mappers.VideoResponse'
+        type: array
+    type: object
+  mappers.ChannelResponse:
     properties:
       id:
         type: string
       snippet:
-        $ref: '#/definitions/entities.ChannelSnippet'
+        $ref: '#/definitions/mappers.ChannelSnippetResponse'
       statistics:
-        $ref: '#/definitions/entities.ChannelStatistics'
+        $ref: '#/definitions/mappers.ChannelStatisticsResponse'
     type: object
-  entities.ChannelSnippet:
+  mappers.ChannelSnippetResponse:
     properties:
       customUrl:
         type: string
@@ -18,11 +32,11 @@ definitions:
       publishedAt:
         type: string
       thumbnails:
-        $ref: '#/definitions/entities.Thumbnails'
+        $ref: '#/definitions/mappers.ThumbnailsResponse'
       title:
         type: string
     type: object
-  entities.ChannelStatistics:
+  mappers.ChannelStatisticsResponse:
     properties:
       hiddenSubscriberCount:
         type: boolean
@@ -33,7 +47,29 @@ definitions:
       viewCount:
         type: string
     type: object
-  entities.Song:
+  mappers.ThumbnailResponse:
+    properties:
+      height:
+        type: integer
+      url:
+        type: string
+      width:
+        type: integer
+    type: object
+  mappers.ThumbnailsResponse:
+    properties:
+      default:
+        $ref: '#/definitions/mappers.ThumbnailResponse'
+      high:
+        $ref: '#/definitions/mappers.ThumbnailResponse'
+      maxres:
+        $ref: '#/definitions/mappers.ThumbnailResponse'
+      medium:
+        $ref: '#/definitions/mappers.ThumbnailResponse'
+      standard:
+        $ref: '#/definitions/mappers.ThumbnailResponse'
+    type: object
+  mappers.VideoResponse:
     properties:
       channelId:
         type: string
@@ -50,35 +86,13 @@ definitions:
           type: string
         type: array
       thumbnails:
-        $ref: '#/definitions/entities.Thumbnails'
+        $ref: '#/definitions/mappers.ThumbnailsResponse'
       title:
         type: string
       viewCount:
-        $ref: '#/definitions/entities.Views'
+        $ref: '#/definitions/mappers.ViewsResponse'
     type: object
-  entities.Thumbnail:
-    properties:
-      height:
-        type: integer
-      url:
-        type: string
-      width:
-        type: integer
-    type: object
-  entities.Thumbnails:
-    properties:
-      default:
-        $ref: '#/definitions/entities.Thumbnail'
-      high:
-        $ref: '#/definitions/entities.Thumbnail'
-      maxres:
-        $ref: '#/definitions/entities.Thumbnail'
-      medium:
-        $ref: '#/definitions/entities.Thumbnail'
-      standard:
-        $ref: '#/definitions/entities.Thumbnail'
-    type: object
-  entities.Views:
+  mappers.ViewsResponse:
     properties:
       daily:
         type: string
@@ -114,9 +128,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/entities.Channel'
-            type: array
+            $ref: '#/definitions/handlers.ChannelsResponse'
       summary: Get Channels
     post:
       consumes:
@@ -173,9 +185,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/entities.Song'
-            type: array
+            $ref: '#/definitions/handlers.VideosResponse'
       summary: Get all songs
     post:
       consumes:

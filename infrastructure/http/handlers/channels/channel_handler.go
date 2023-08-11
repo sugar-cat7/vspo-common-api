@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/sugar-cat7/vspo-common-api/infrastructure/http/mappers"
 	usecases "github.com/sugar-cat7/vspo-common-api/usecases/channel"
 )
 
@@ -20,12 +21,14 @@ func NewGetChannelsHandler(u *usecases.GetChannels) *GetChannelsHandler {
 	}
 }
 
+type ChannelsResponse mappers.ChannelsResponse
+
 // @Summary Get Channels
 // @Description Retrieves all channels based on provided IDs.
 // @Accept  json
 // @Produce  json
 // @Param ids query []string false "Comma-separated list of channel IDs"
-// @Success 200 {array} entities.Channel
+// @Success 200 {object} ChannelsResponse
 // @Router /channels [get]
 func (h *GetChannelsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	// Parse the query parameters for "ids", which should be a comma-separated list of channel IDs.
@@ -38,7 +41,7 @@ func (h *GetChannelsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(channels)
+	err = json.NewEncoder(w).Encode(mappers.MapChannelsToResponse(channels))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

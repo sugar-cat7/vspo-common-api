@@ -21,9 +21,9 @@ func TestUpdateSongs_Execute(t *testing.T) {
 		factories.NewYoutubeVideo(videoIDs[0]),
 		factories.NewYoutubeVideo(videoIDs[1]),
 	}
-	allSongsData := []*entities.Song{
-		factories.NewSongPtr(videoIDs[0]),
-		factories.NewSongPtr(videoIDs[1]),
+	allSongsData := []*entities.Video{
+		factories.NewVideoPtr(videoIDs[0]),
+		factories.NewVideoPtr(videoIDs[1]),
 	}
 
 	tests := []struct {
@@ -31,7 +31,7 @@ func TestUpdateSongs_Execute(t *testing.T) {
 		cronType     entities.CronType
 		videoIDs     []string
 		newVideoData []*youtube.Video
-		allSongsData []*entities.Song
+		allSongsData []*entities.Video
 		expectErr    bool
 	}{
 		{
