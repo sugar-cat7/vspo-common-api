@@ -6,12 +6,14 @@ import (
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
 )
 
+// ThumbnailResponse is the response structure for a thumbnail.
 type ThumbnailResponse struct {
-	URL    string `json:"url"`
-	Width  int    `json:"width"`
-	Height int    `json:"height"`
+	URL    string `json:"url" example:"https://i.ytimg.com/vi/Qh6aSTTkmEs/default.jpg"`
+	Width  int    `json:"width" example:"120"`
+	Height int    `json:"height" example:"90"`
 }
 
+// ThumbnailsResponse contains multiple thumbnails.
 type ThumbnailsResponse struct {
 	Default  ThumbnailResponse `json:"default"`
 	Medium   ThumbnailResponse `json:"medium"`
@@ -21,22 +23,22 @@ type ThumbnailsResponse struct {
 }
 
 type ViewsResponse struct {
-	Daily   string `json:"daily"`
-	Weekly  string `json:"weekly"`
-	Monthly string `json:"monthly"`
-	Total   string `json:"total"`
+	Daily   string `json:"daily" example:"1000"`
+	Weekly  string `json:"weekly" example:"10000"`
+	Monthly string `json:"monthly" example:"100000"`
+	Total   string `json:"total" example:"1000000"`
 }
 
 type VideoResponse struct {
-	ID           string             `json:"id"`
-	Title        string             `json:"title"`
-	Description  string             `json:"description"`
+	ID           string             `json:"id" example:"Qh6aSTTkmEs"`
+	Title        string             `json:"title" example:"【ぶいすぽっ！】Blessing ~12人で歌ってみた~"`
+	Description  string             `json:"description" example:""`
 	ViewCount    ViewsResponse      `json:"viewCount"`
-	PublishedAt  time.Time          `json:"publishedAt"`
+	PublishedAt  time.Time          `json:"publishedAt" example:"2020-12-31T12:34:56+09:00"`
 	Thumbnails   ThumbnailsResponse `json:"thumbnails"`
-	ChannelTitle string             `json:"channelTitle"`
-	ChannelID    string             `json:"channelId"`
-	Tags         []string           `json:"tags"`
+	ChannelTitle string             `json:"channelTitle" example:"花芽なずな / Nazuna Kaga"`
+	ChannelID    string             `json:"channelId" example:"UCiMG6VdScBabPhJ1ZtaVmbw"`
+	Tags         []string           `json:"tags" example:"[ぶいすぽっ！, 歌ってみた]"`
 }
 
 // VideosResponse Clip, Song, Live...結局形式は同じなのでresponseとしてはまとめる

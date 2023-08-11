@@ -221,7 +221,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "UCiMG6VdScBabPhJ1ZtaVmbw"
                 },
                 "snippet": {
                     "$ref": "#/definitions/mappers.ChannelSnippetResponse"
@@ -235,19 +236,23 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "customUrl": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "@nazunakaga"
                 },
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ぶいすぽ所属　最年少！５歳可愛い担当花芽なずなです♡\n\n好きなゲームはFPS全般！"
                 },
                 "publishedAt": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2018-09-20T11:41:24Z"
                 },
                 "thumbnails": {
                     "$ref": "#/definitions/mappers.ThumbnailsResponse"
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "花芽なずな / Nazuna Kaga"
                 }
             }
         },
@@ -255,16 +260,20 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "hiddenSubscriberCount": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": false
                 },
                 "subscriberCount": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "357000"
                 },
                 "videoCount": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "1183"
                 },
                 "viewCount": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "59373115"
                 }
             }
         },
@@ -272,13 +281,16 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "height": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 90
                 },
                 "url": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "https://i.ytimg.com/vi/Qh6aSTTkmEs/default.jpg"
                 },
                 "width": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 120
                 }
             }
         },
@@ -306,31 +318,41 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "channelId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "UCiMG6VdScBabPhJ1ZtaVmbw"
                 },
                 "channelTitle": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "花芽なずな / Nazuna Kaga"
                 },
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "example": ""
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Qh6aSTTkmEs"
                 },
                 "publishedAt": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2020-12-31T12:34:56+09:00"
                 },
                 "tags": {
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "[ぶいすぽっ！",
+                        " 歌ってみた]"
+                    ]
                 },
                 "thumbnails": {
                     "$ref": "#/definitions/mappers.ThumbnailsResponse"
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "【ぶいすぽっ！】Blessing ~12人で歌ってみた~"
                 },
                 "viewCount": {
                     "$ref": "#/definitions/mappers.ViewsResponse"
@@ -341,16 +363,20 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "daily": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "1000"
                 },
                 "monthly": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "100000"
                 },
                 "total": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "1000000"
                 },
                 "weekly": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "10000"
                 }
             }
         }
