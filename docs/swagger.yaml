@@ -17,6 +17,7 @@ definitions:
   mappers.ChannelResponse:
     properties:
       id:
+        example: UCiMG6VdScBabPhJ1ZtaVmbw
         type: string
       snippet:
         $ref: '#/definitions/mappers.ChannelSnippetResponse'
@@ -26,34 +27,48 @@ definitions:
   mappers.ChannelSnippetResponse:
     properties:
       customUrl:
+        example: '@nazunakaga'
         type: string
       description:
+        example: |-
+          ぶいすぽ所属　最年少！５歳可愛い担当花芽なずなです♡
+
+          好きなゲームはFPS全般！
         type: string
       publishedAt:
+        example: "2018-09-20T11:41:24Z"
         type: string
       thumbnails:
         $ref: '#/definitions/mappers.ThumbnailsResponse'
       title:
+        example: 花芽なずな / Nazuna Kaga
         type: string
     type: object
   mappers.ChannelStatisticsResponse:
     properties:
       hiddenSubscriberCount:
+        example: false
         type: boolean
       subscriberCount:
+        example: "357000"
         type: string
       videoCount:
+        example: "1183"
         type: string
       viewCount:
+        example: "59373115"
         type: string
     type: object
   mappers.ThumbnailResponse:
     properties:
       height:
+        example: 90
         type: integer
       url:
+        example: https://i.ytimg.com/vi/Qh6aSTTkmEs/default.jpg
         type: string
       width:
+        example: 120
         type: integer
     type: object
   mappers.ThumbnailsResponse:
@@ -72,22 +87,31 @@ definitions:
   mappers.VideoResponse:
     properties:
       channelId:
+        example: UCiMG6VdScBabPhJ1ZtaVmbw
         type: string
       channelTitle:
+        example: 花芽なずな / Nazuna Kaga
         type: string
       description:
+        example: ""
         type: string
       id:
+        example: Qh6aSTTkmEs
         type: string
       publishedAt:
+        example: "2020-12-31T12:34:56+09:00"
         type: string
       tags:
+        example:
+        - '[ぶいすぽっ！'
+        - ' 歌ってみた]'
         items:
           type: string
         type: array
       thumbnails:
         $ref: '#/definitions/mappers.ThumbnailsResponse'
       title:
+        example: 【ぶいすぽっ！】Blessing ~12人で歌ってみた~
         type: string
       viewCount:
         $ref: '#/definitions/mappers.ViewsResponse'
@@ -95,12 +119,16 @@ definitions:
   mappers.ViewsResponse:
     properties:
       daily:
+        example: "1000"
         type: string
       monthly:
+        example: "100000"
         type: string
       total:
+        example: "1000000"
         type: string
       weekly:
+        example: "10000"
         type: string
     type: object
 info:
