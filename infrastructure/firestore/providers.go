@@ -37,5 +37,9 @@ func ProvideChannelRepository(client repositories.FirestoreClient, repo *Channel
 	return repo
 }
 
+func ProvideClipRepository(client repositories.FirestoreClient, repo *ClipRepository) repositories.ClipRepository {
+	return repo
+}
+
 // Set is a Wire provider set that provides a Firestore client and a song repository.
-var Set = wire.NewSet(ProvideFirestoreClient, NewSongRepository, ProvideSongRepository, ProvideChannelRepository, NewChannelRepository)
+var Set = wire.NewSet(ProvideFirestoreClient, NewSongRepository, ProvideSongRepository, ProvideChannelRepository, NewChannelRepository, ProvideClipRepository, NewClipRepository)

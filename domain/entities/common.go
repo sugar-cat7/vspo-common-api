@@ -23,3 +23,11 @@ type Views struct {
 	Monthly string `firestore:"monthly" json:"monthly"`
 	Total   string `firestore:"total" json:"total"`
 }
+
+type Platform string
+
+const (
+	YouTube     Platform = "youtube"
+	Twitch      Platform = "twitch"
+	Twitcasting Platform = "twitcasting"
+)

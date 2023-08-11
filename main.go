@@ -4,8 +4,9 @@ import (
 	"log"
 	"net/http"
 
-	_ "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/channels"
-	_ "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/songs"
+	_ "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/channel"
+	_ "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/clip"
+	_ "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/song"
 )
 
 // @title VSPO Common API

@@ -112,6 +112,26 @@ const docTemplate = `{
                 }
             }
         },
+        "/clips": {
+            "get": {
+                "description": "Retrieve all clips",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get all clips",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sugar-cat7_vspo-common-api_infrastructure_http_handlers_clip.VideosResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/songs": {
             "get": {
                 "description": "Retrieve all songs",
@@ -126,7 +146,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.VideosResponse"
+                            "$ref": "#/definitions/github_com_sugar-cat7_vspo-common-api_infrastructure_http_handlers_song.VideosResponse"
                         }
                     }
                 }
@@ -195,6 +215,28 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "github_com_sugar-cat7_vspo-common-api_infrastructure_http_handlers_clip.VideosResponse": {
+            "type": "object",
+            "properties": {
+                "videos": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mappers.VideoResponse"
+                    }
+                }
+            }
+        },
+        "github_com_sugar-cat7_vspo-common-api_infrastructure_http_handlers_song.VideosResponse": {
+            "type": "object",
+            "properties": {
+                "videos": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mappers.VideoResponse"
+                    }
+                }
+            }
+        },
         "handlers.ChannelsResponse": {
             "type": "object",
             "properties": {
@@ -202,17 +244,6 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/mappers.ChannelResponse"
-                    }
-                }
-            }
-        },
-        "handlers.VideosResponse": {
-            "type": "object",
-            "properties": {
-                "videos": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/mappers.VideoResponse"
                     }
                 }
             }
