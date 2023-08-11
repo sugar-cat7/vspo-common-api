@@ -7,10 +7,10 @@
 package di
 
 import (
-	handlers2 "github.com/sugar-cat7/vspo-common-api/app/http/handlers/channels"
-	"github.com/sugar-cat7/vspo-common-api/app/http/handlers/songs"
 	"github.com/sugar-cat7/vspo-common-api/domain/services"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/firestore"
+	handlers2 "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/channels"
+	"github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/songs"
 	usecases2 "github.com/sugar-cat7/vspo-common-api/usecases/channel"
 	"github.com/sugar-cat7/vspo-common-api/usecases/song"
 )

@@ -42,10 +42,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/entities.Channel"
-                            }
+                            "$ref": "#/definitions/handlers.ChannelsResponse"
                         }
                     }
                 }
@@ -129,10 +126,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/entities.Song"
-                            }
+                            "$ref": "#/definitions/handlers.VideosResponse"
                         }
                     }
                 }
@@ -201,21 +195,43 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "entities.Channel": {
+        "handlers.ChannelsResponse": {
+            "type": "object",
+            "properties": {
+                "channels": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mappers.ChannelResponse"
+                    }
+                }
+            }
+        },
+        "handlers.VideosResponse": {
+            "type": "object",
+            "properties": {
+                "videos": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mappers.VideoResponse"
+                    }
+                }
+            }
+        },
+        "mappers.ChannelResponse": {
             "type": "object",
             "properties": {
                 "id": {
                     "type": "string"
                 },
                 "snippet": {
-                    "$ref": "#/definitions/entities.ChannelSnippet"
+                    "$ref": "#/definitions/mappers.ChannelSnippetResponse"
                 },
                 "statistics": {
-                    "$ref": "#/definitions/entities.ChannelStatistics"
+                    "$ref": "#/definitions/mappers.ChannelStatisticsResponse"
                 }
             }
         },
-        "entities.ChannelSnippet": {
+        "mappers.ChannelSnippetResponse": {
             "type": "object",
             "properties": {
                 "customUrl": {
@@ -228,14 +244,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "thumbnails": {
-                    "$ref": "#/definitions/entities.Thumbnails"
+                    "$ref": "#/definitions/mappers.ThumbnailsResponse"
                 },
                 "title": {
                     "type": "string"
                 }
             }
         },
-        "entities.ChannelStatistics": {
+        "mappers.ChannelStatisticsResponse": {
             "type": "object",
             "properties": {
                 "hiddenSubscriberCount": {
@@ -252,7 +268,41 @@ const docTemplate = `{
                 }
             }
         },
-        "entities.Song": {
+        "mappers.ThumbnailResponse": {
+            "type": "object",
+            "properties": {
+                "height": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "integer"
+                }
+            }
+        },
+        "mappers.ThumbnailsResponse": {
+            "type": "object",
+            "properties": {
+                "default": {
+                    "$ref": "#/definitions/mappers.ThumbnailResponse"
+                },
+                "high": {
+                    "$ref": "#/definitions/mappers.ThumbnailResponse"
+                },
+                "maxres": {
+                    "$ref": "#/definitions/mappers.ThumbnailResponse"
+                },
+                "medium": {
+                    "$ref": "#/definitions/mappers.ThumbnailResponse"
+                },
+                "standard": {
+                    "$ref": "#/definitions/mappers.ThumbnailResponse"
+                }
+            }
+        },
+        "mappers.VideoResponse": {
             "type": "object",
             "properties": {
                 "channelId": {
@@ -277,51 +327,17 @@ const docTemplate = `{
                     }
                 },
                 "thumbnails": {
-                    "$ref": "#/definitions/entities.Thumbnails"
+                    "$ref": "#/definitions/mappers.ThumbnailsResponse"
                 },
                 "title": {
                     "type": "string"
                 },
                 "viewCount": {
-                    "$ref": "#/definitions/entities.Views"
+                    "$ref": "#/definitions/mappers.ViewsResponse"
                 }
             }
         },
-        "entities.Thumbnail": {
-            "type": "object",
-            "properties": {
-                "height": {
-                    "type": "integer"
-                },
-                "url": {
-                    "type": "string"
-                },
-                "width": {
-                    "type": "integer"
-                }
-            }
-        },
-        "entities.Thumbnails": {
-            "type": "object",
-            "properties": {
-                "default": {
-                    "$ref": "#/definitions/entities.Thumbnail"
-                },
-                "high": {
-                    "$ref": "#/definitions/entities.Thumbnail"
-                },
-                "maxres": {
-                    "$ref": "#/definitions/entities.Thumbnail"
-                },
-                "medium": {
-                    "$ref": "#/definitions/entities.Thumbnail"
-                },
-                "standard": {
-                    "$ref": "#/definitions/entities.Thumbnail"
-                }
-            }
-        },
-        "entities.Views": {
+        "mappers.ViewsResponse": {
             "type": "object",
             "properties": {
                 "daily": {

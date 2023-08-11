@@ -25,7 +25,7 @@ func NewSongRepository(client repositories.FirestoreClient) *SongRepository {
 }
 
 // Create creates a new song in Firestore.
-func (r *SongRepository) Create(song *entities.Song) error {
+func (r *SongRepository) Create(song *entities.Video) error {
 	_, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -39,15 +39,15 @@ func (r *SongRepository) Create(song *entities.Song) error {
 }
 
 // GetAll retrieves all songs from Firestore.
-func (r *SongRepository) GetAll() ([]*entities.Song, error) {
+func (r *SongRepository) GetAll() ([]*entities.Video, error) {
 	docs, err := r.client.GetAll(r.collectionName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get all documents from Firestore: %w", err)
 	}
 
-	var songs []*entities.Song
+	var songs []*entities.Video
 	for _, doc := range docs {
-		var song entities.Song
+		var song entities.Video
 		err = doc.DataTo(&song)
 		if err != nil {
 			return nil, fmt.Errorf("failed to map document data to the provided struct: %w", err)
@@ -59,13 +59,13 @@ func (r *SongRepository) GetAll() ([]*entities.Song, error) {
 }
 
 // GetByID retrieves a song by its ID from Firestore.
-func (r *SongRepository) GetByID(id string) (*entities.Song, error) {
+func (r *SongRepository) GetByID(id string) (*entities.Video, error) {
 	doc, err := r.client.GetByID(r.collectionName, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get document by ID from Firestore: %w", err)
 	}
 
-	var song entities.Song
+	var song entities.Video
 	err = doc.DataTo(&song)
 	if err != nil {
 		return nil, fmt.Errorf("failed to map document data to the provided struct: %w", err)
@@ -75,7 +75,7 @@ func (r *SongRepository) GetByID(id string) (*entities.Song, error) {
 }
 
 // Update updates a song in Firestore.
-func (r *SongRepository) Update(song *entities.Song) error {
+func (r *SongRepository) Update(song *entities.Video) error {
 	_, err := r.client.Update(r.collectionName, song.GetID(), song.GetUpdate())
 
 	if err != nil {
@@ -97,7 +97,7 @@ func (r *SongRepository) Delete(id string) error {
 }
 
 // UpdateInBatch updates multiple songs in Firestore using batch operation.
-func (r *SongRepository) UpdateInBatch(songs []*entities.Song) error {
+func (r *SongRepository) UpdateInBatch(songs []*entities.Video) error {
 	// split songs into chunks of 500 (maxBatchSize)
 	songChunks, err := util.Chunk(songs, maxBatchSize)
 	if err != nil {
@@ -127,7 +127,7 @@ func (r *SongRepository) UpdateInBatch(songs []*entities.Song) error {
 }
 
 // CreateInBatch creates multiple songs in Firestore using batch operation.
-func (r *SongRepository) CreateInBatch(songs []*entities.Song) error {
+func (r *SongRepository) CreateInBatch(songs []*entities.Video) error {
 	// split songs into chunks of 500 (maxBatchSize)
 	songChunks, err := util.Chunk(songs, maxBatchSize)
 	if err != nil {

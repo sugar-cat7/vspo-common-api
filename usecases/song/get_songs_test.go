@@ -25,16 +25,16 @@ func TestGetAllSongs_Execute(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	testSong := factories.NewSong("testID")
+	testSong := factories.NewVideo("testID")
 
 	tests := []struct {
 		name    string
-		songs   []*entities.Song
+		songs   []*entities.Video
 		wantErr bool
 	}{
 		{
 			name:    "Success",
-			songs:   []*entities.Song{&testSong},
+			songs:   []*entities.Video{&testSong},
 			wantErr: false,
 		},
 		{

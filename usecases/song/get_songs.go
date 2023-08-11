@@ -18,7 +18,7 @@ func NewGetAllSongs(songService services.SongService) *GetAllSongs {
 }
 
 // Execute gets all songs from Firestore.
-func (g *GetAllSongs) Execute() ([]*entities.Song, error) {
+func (g *GetAllSongs) Execute() ([]*entities.Video, error) {
 	// Get all songs from Firestore
 	songs, err := g.songService.GetAllSongs()
 	if err != nil {

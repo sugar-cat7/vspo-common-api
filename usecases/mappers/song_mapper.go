@@ -12,13 +12,13 @@ import (
 type SongMapper struct{}
 
 // Map maps a YouTube API video to a domain Song.
-func (sm *SongMapper) Map(ytVideo *youtube.Video) (*entities.Song, error) {
+func (sm *SongMapper) Map(ytVideo *youtube.Video) (*entities.Video, error) {
 	pubAt, err := time.Parse(time.RFC3339, ytVideo.Snippet.PublishedAt)
 	if err != nil {
 		return nil, err
 	}
 	viewCount := strconv.FormatUint(ytVideo.Statistics.ViewCount, 10)
-	return &entities.Song{
+	return &entities.Video{
 		ID:          ytVideo.Id,
 		Title:       ytVideo.Snippet.Title,
 		Description: ytVideo.Snippet.Description,
@@ -63,8 +63,8 @@ func (sm *SongMapper) Map(ytVideo *youtube.Video) (*entities.Song, error) {
 }
 
 // MapMultiple maps multiple YouTube API videos to domain Songs.
-func (sm *SongMapper) MapMultiple(ytVideos []*youtube.Video) ([]*entities.Song, error) {
-	songs := make([]*entities.Song, len(ytVideos))
+func (sm *SongMapper) MapMultiple(ytVideos []*youtube.Video) ([]*entities.Video, error) {
+	songs := make([]*entities.Video, len(ytVideos))
 	for i, ytVideo := range ytVideos {
 		song, err := sm.Map(ytVideo)
 		if err != nil {

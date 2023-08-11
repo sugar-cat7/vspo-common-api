@@ -1,14 +1,15 @@
-//go:generate go run github.com/google/wire/cmd/wire@v0.5.0
 //go:build wireinject
+// +build wireinject
 
+//go:generate go run github.com/google/wire/cmd/wire@v0.5.0
 package di
 
 import (
 	"github.com/google/wire"
-	channel_handlers "github.com/sugar-cat7/vspo-common-api/app/http/handlers/channels"
-	song_handlers "github.com/sugar-cat7/vspo-common-api/app/http/handlers/songs"
 	"github.com/sugar-cat7/vspo-common-api/domain/services"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/firestore"
+	channel_handlers "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/channels"
+	song_handlers "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/songs"
 	channel_usecases "github.com/sugar-cat7/vspo-common-api/usecases/channel"
 	song_usecases "github.com/sugar-cat7/vspo-common-api/usecases/song"
 )
