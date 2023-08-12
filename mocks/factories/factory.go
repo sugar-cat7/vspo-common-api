@@ -6,6 +6,7 @@ import (
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
+	entities2 "github.com/sugar-cat7/vspo-common-api/domain/entities/legacy"
 	"google.golang.org/api/youtube/v3"
 )
 
@@ -197,5 +198,25 @@ func NewYoutubeChannel(id string) *youtube.Channel {
 			SubscriberCount: uint64(subscriberCount),
 			VideoCount:      uint64(videoCount),
 		},
+	}
+}
+
+func NewClip(clipID string) *entities2.Clip {
+	return &entities2.Clip{
+		ID:           clipID,
+		Title:        "title1",
+		Description:  "description1",
+		ChannelID:    "channelID1",
+		ChannelTitle: "channelTitle1",
+		ThumbnailURL: "https://example.com/default.jpg",
+		IconURL:      "https://example.com/icon.jpg",
+		Platform:     "youtube",
+		ViewCount:    "1000",
+		LikeCount:    "500",
+		CommentCount: "200",
+		NewViewCount: entities.Views{
+			Total: "1000",
+		},
+		CreatedAt: time.Date(2023, 01, 01, 0, 0, 0, 0, time.UTC),
 	}
 }

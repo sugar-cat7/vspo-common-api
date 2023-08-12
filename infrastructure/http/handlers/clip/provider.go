@@ -5,4 +5,4 @@ import (
 )
 
 // Set is a Wire provider set that provides a clip usecases.
-var Set = wire.NewSet(NewGetClipsByPeriodHandler)
+var Set = wire.NewSet(NewGetClipsByPeriodHandler, NewUpdateClipsHandler)

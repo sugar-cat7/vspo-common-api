@@ -5,4 +5,4 @@ import (
 )
 
 // Set is a Wire provider set that provides a song usecases.
-var Set = wire.NewSet(NewGetClipsByPeriod)
+var Set = wire.NewSet(NewGetClipsByPeriod, NewUpdateClipsByPeriod)

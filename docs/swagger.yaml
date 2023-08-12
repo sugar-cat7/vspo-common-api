@@ -222,6 +222,25 @@ paths:
           schema:
             $ref: '#/definitions/github_com_sugar-cat7_vspo-common-api_infrastructure_http_handlers_clip.VideosResponse'
       summary: Get all clips
+    put:
+      consumes:
+      - application/json
+      description: Update clips based on provided cronType
+      parameters:
+      - description: Type of the cron
+        in: body
+        name: cronType
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Clips updated successfully
+          schema:
+            type: string
+      summary: Update clips from YouTube
   /songs:
     get:
       consumes:

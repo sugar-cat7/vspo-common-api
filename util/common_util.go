@@ -2,6 +2,10 @@ package util
 
 import (
 	"errors"
+	"fmt"
+	"time"
+
+	"github.com/sugar-cat7/vspo-common-api/domain/entities"
 )
 
 // Chunk splits a slice into chunks of the given size.
@@ -37,4 +41,22 @@ func ConvertToPtrSlice[T any](data []T) []*T {
 		ptrs = append(ptrs, &d)
 	}
 	return ptrs
+}
+
+func GetStartTime(cronType entities.CronType) (string, error) {
+	now := time.Now()
+	startOfToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	var startTime time.Time
+	switch cronType {
+	case entities.Daily:
+		startTime = startOfToday
+	case entities.Weekly:
+		startTime = startOfToday.AddDate(0, 0, -7)
+	case entities.Monthly:
+		startTime = startOfToday.AddDate(0, -1, 0)
+	default:
+		return "", fmt.Errorf("Unsupported CronType: %s", cronType)
+	}
+
+	return startTime.Format(time.RFC3339), nil
 }

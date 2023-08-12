@@ -1,6 +1,8 @@
 package mappers
 
 import (
+	"fmt"
+
 	entities "github.com/sugar-cat7/vspo-common-api/domain/entities"
 	entities2 "github.com/sugar-cat7/vspo-common-api/domain/entities/legacy"
 )
@@ -45,4 +47,33 @@ func (cm *ClipMapper) MapMultiple(clips []*entities2.Clip) ([]*entities.Video, e
 	}
 
 	return videos, nil
+}
+
+func (cm *ClipMapper) BindAndUpdate(cronType entities.CronType, clip *entities2.Clip, video *entities.Video,
+) error {
+	clip.ThumbnailURL = video.Thumbnails.Medium.URL
+	clip.ViewCount = video.ViewCount.Total
+	switch cronType {
+	case entities.Daily:
+		clip.NewViewCount.Daily = video.ViewCount.Daily
+	case entities.Weekly:
+		clip.NewViewCount.Weekly = video.ViewCount.Weekly
+	case entities.Monthly:
+		clip.NewViewCount.Monthly = video.ViewCount.Monthly
+	}
+	return nil
+}
+
+func (cm *ClipMapper) BindAndUpdateMultiple(cronType entities.CronType, clips []*entities2.Clip, videos []*entities.Video) error {
+	if len(clips) != len(videos) {
+		return fmt.Errorf("Length of clips and videos must be the same")
+	}
+	for i, clip := range clips {
+		video := videos[i]
+		err := cm.BindAndUpdate(cronType, clip, video)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

@@ -56,7 +56,9 @@ func InitializeApplication() (*Application, func(), error) {
 	clipMapper := mappers.ProvideClipMapper()
 	getClipsByPeriod := usecases3.NewGetClipsByPeriod(clipService, clipMapper)
 	getClipsByPeriodHandler := handlers3.NewGetClipsByPeriodHandler(getClipsByPeriod)
-	application := NewApplication(getAllSongsHandler, createSongHandler, updateSongsHandler, getChannelsHandler, createChannelHandler, updateChannelsFromYoutubeHandler, getClipsByPeriodHandler)
+	updateClipsByPeriod := usecases3.NewUpdateClipsByPeriod(clipService, clipMapper, youTubeService)
+	updateClipsHandler := handlers3.NewUpdateClipsHandler(updateClipsByPeriod)
+	application := NewApplication(getAllSongsHandler, createSongHandler, updateSongsHandler, getChannelsHandler, createChannelHandler, updateChannelsFromYoutubeHandler, getClipsByPeriodHandler, updateClipsHandler)
 	return application, func() {
 	}, nil
 }
@@ -72,12 +74,13 @@ type Application struct {
 	CreateChannelHandler             *handlers2.CreateChannelHandler
 	UpdateChannelsFromYoutubeHandler *handlers2.UpdateChannelsFromYoutubeHandler
 	GetClipsByPeriodHandler          *handlers3.GetClipsByPeriodHandler
+	UpdateClipsHandler               *handlers3.UpdateClipsHandler
 }
 
 // NewApplication creates a new Application.
 func NewApplication(getAllSongsHandler *handlers.GetAllSongsHandler, createSongHandler *handlers.CreateSongHandler, updateSongsHandler *handlers.UpdateSongsHandler,
 	getChannelsHandler *handlers2.GetChannelsHandler, createChannelHandler *handlers2.CreateChannelHandler, updateChannelsFromYoutubeHandler *handlers2.UpdateChannelsFromYoutubeHandler,
-	getClipsByPeriodHandler *handlers3.GetClipsByPeriodHandler,
+	getClipsByPeriodHandler *handlers3.GetClipsByPeriodHandler, UpdateClipsHandler *handlers3.UpdateClipsHandler,
 ) *Application {
 	return &Application{
 		GetAllSongsHandler:               getAllSongsHandler,
@@ -87,5 +90,6 @@ func NewApplication(getAllSongsHandler *handlers.GetAllSongsHandler, createSongH
 		CreateChannelHandler:             createChannelHandler,
 		UpdateChannelsFromYoutubeHandler: updateChannelsFromYoutubeHandler,
 		GetClipsByPeriodHandler:          getClipsByPeriodHandler,
+		UpdateClipsHandler:               UpdateClipsHandler,
 	}
 }

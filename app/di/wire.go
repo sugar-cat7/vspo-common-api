@@ -1,7 +1,5 @@
 //go:build wireinject
-// +build wireinject
 
-//
 //go:generate go run github.com/google/wire/cmd/wire@v0.5.0
 package di
 
@@ -25,12 +23,13 @@ type Application struct {
 	CreateChannelHandler             *channel_handlers.CreateChannelHandler
 	UpdateChannelsFromYoutubeHandler *channel_handlers.UpdateChannelsFromYoutubeHandler
 	GetClipsByPeriodHandler          *clip_handlers.GetClipsByPeriodHandler
+	UpdateClipsHandler               *clip_handlers.UpdateClipsHandler
 }
 
 // NewApplication creates a new Application.
 func NewApplication(getAllSongsHandler *song_handlers.GetAllSongsHandler, createSongHandler *song_handlers.CreateSongHandler, updateSongsHandler *song_handlers.UpdateSongsHandler,
 	getChannelsHandler *channel_handlers.GetChannelsHandler, createChannelHandler *channel_handlers.CreateChannelHandler, updateChannelsFromYoutubeHandler *channel_handlers.UpdateChannelsFromYoutubeHandler,
-	getClipsByPeriodHandler *clip_handlers.GetClipsByPeriodHandler,
+	getClipsByPeriodHandler *clip_handlers.GetClipsByPeriodHandler, UpdateClipsHandler *clip_handlers.UpdateClipsHandler,
 ) *Application {
 	return &Application{
 		GetAllSongsHandler:               getAllSongsHandler,
@@ -40,6 +39,7 @@ func NewApplication(getAllSongsHandler *song_handlers.GetAllSongsHandler, create
 		CreateChannelHandler:             createChannelHandler,
 		UpdateChannelsFromYoutubeHandler: updateChannelsFromYoutubeHandler,
 		GetClipsByPeriodHandler:          getClipsByPeriodHandler,
+		UpdateClipsHandler:               UpdateClipsHandler,
 	}
 }
 

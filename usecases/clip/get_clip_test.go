@@ -1,67 +1,76 @@
 package usecases
 
 import (
-	"reflect"
+	"errors"
 	"testing"
 
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
-	"github.com/sugar-cat7/vspo-common-api/domain/services"
+	entities2 "github.com/sugar-cat7/vspo-common-api/domain/entities/legacy"
+	"github.com/sugar-cat7/vspo-common-api/mocks/factories"
+	mocks "github.com/sugar-cat7/vspo-common-api/mocks/services"
 	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
 )
 
 func TestNewGetClipsByPeriod(t *testing.T) {
-	type args struct {
-		clipService services.ClipService
-		clipMapper  *mappers.ClipMapper
-	}
-	tests := []struct {
-		name string
-		args args
-		want *GetClipsByPeriod
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewGetClipsByPeriod(tt.args.clipService, tt.args.clipMapper); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewGetClipsByPeriod() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockClipService := mocks.NewMockClipService(ctrl)
+	got := NewGetClipsByPeriod(mockClipService, &mappers.ClipMapper{})
+
+	assert.NotNil(t, got, "NewGetClipsByPeriod() should not return nil")
 }
 
 func TestGetClipsByPeriod_Execute(t *testing.T) {
-	type fields struct {
-		clipService services.ClipService
-		clipMapper  *mappers.ClipMapper
-	}
-	type args struct {
-		start string
-		end   string
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	c := &mappers.ClipMapper{}
+	testVideo, _ := c.Map(factories.NewClip("testID"))
+
 	tests := []struct {
 		name    string
-		fields  fields
-		args    args
-		want    []*entities.Video
+		videos  []*entities.Video
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name:    "Success",
+			videos:  []*entities.Video{testVideo},
+			wantErr: false,
+		},
+		{
+			name:    "Failure",
+			videos:  nil,
+			wantErr: true,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			g := &GetClipsByPeriod{
-				clipService: tt.fields.clipService,
-				clipMapper:  tt.fields.clipMapper,
+			mockClipService := mocks.NewMockClipService(ctrl)
+
+			start, end := "2022-01-01", "2022-01-31"
+
+			if tt.wantErr {
+				mockClipService.EXPECT().FindAllByPeriod(start, end).Return(nil, errors.New("some error"))
+			} else {
+				mockClipService.EXPECT().FindAllByPeriod(start, end).Return(
+					[]*entities2.Clip{factories.NewClip("testID")}, nil)
+
 			}
-			got, err := g.Execute(tt.args.start, tt.args.end)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetClipsByPeriod.Execute() error = %v, wantErr %v", err, tt.wantErr)
-				return
+
+			g := NewGetClipsByPeriod(mockClipService, &mappers.ClipMapper{})
+
+			got, err := g.Execute(start, end)
+
+			if tt.wantErr {
+				assert.Error(t, err, "Expected error")
+			} else {
+				assert.NoError(t, err, "Unexpected error")
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("GetClipsByPeriod.Execute() = %v, want %v", got, tt.want)
-			}
+
+			assert.Equal(t, tt.videos, got, "Expected and returned videos should be the same")
 		})
 	}
 }

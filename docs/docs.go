@@ -130,6 +130,35 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "put": {
+                "description": "Update clips based on provided cronType",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Update clips from YouTube",
+                "parameters": [
+                    {
+                        "description": "Type of the cron",
+                        "name": "cronType",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Clips updated successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
         "/songs": {
