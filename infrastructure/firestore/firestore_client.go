@@ -104,6 +104,7 @@ func (b *BulkWriterImpl) Flush() {
 const (
 	channelsCollectionName = "channels"
 	songsCollectionName    = "songs"
+	clipsCollectionName    = "clips"
 )
 
 var maxBatchSize = 500

@@ -9,9 +9,12 @@ package di
 import (
 	"github.com/sugar-cat7/vspo-common-api/domain/services"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/firestore"
-	handlers2 "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/channels"
-	"github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/songs"
+	handlers2 "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/channel"
+	handlers3 "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/clip"
+	"github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/song"
 	usecases2 "github.com/sugar-cat7/vspo-common-api/usecases/channel"
+	usecases3 "github.com/sugar-cat7/vspo-common-api/usecases/clip"
+	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
 	"github.com/sugar-cat7/vspo-common-api/usecases/song"
 )
 
@@ -32,7 +35,7 @@ func InitializeApplication() (*Application, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	songMapper := usecases.ProvideSongMapper()
+	songMapper := mappers.ProvideSongMapper()
 	createSong := usecases.NewCreateSong(youTubeService, songService, songMapper)
 	createSongHandler := handlers.NewCreateSongHandler(createSong)
 	updateSongs := usecases.NewUpdateSongs(youTubeService, songService, songMapper)
@@ -42,12 +45,20 @@ func InitializeApplication() (*Application, func(), error) {
 	channelService := services.NewChannelService(repositoriesChannelRepository)
 	getChannels := usecases2.NewGetChannels(channelService)
 	getChannelsHandler := handlers2.NewGetChannelsHandler(getChannels)
-	channelMapper := usecases2.ProvideChannelMapper()
+	channelMapper := mappers.ProvideChannelMapper()
 	createChannel := usecases2.NewCreateChannel(youTubeService, channelService, channelMapper)
 	createChannelHandler := handlers2.NewCreateChannelHandler(createChannel)
 	updateChannelsFromYoutube := usecases2.NewUpdateChannelsFromYoutube(youTubeService, channelService, channelMapper)
 	updateChannelsFromYoutubeHandler := handlers2.NewUpdateChannelsFromYoutubeHandler(updateChannelsFromYoutube)
-	application := NewApplication(getAllSongsHandler, createSongHandler, updateSongsHandler, getChannelsHandler, createChannelHandler, updateChannelsFromYoutubeHandler)
+	clipRepository := firestore.NewClipRepository(firestoreClient)
+	repositoriesClipRepository := firestore.ProvideClipRepository(firestoreClient, clipRepository)
+	clipService := services.NewClipService(repositoriesClipRepository)
+	clipMapper := mappers.ProvideClipMapper()
+	getClipsByPeriod := usecases3.NewGetClipsByPeriod(clipService, clipMapper)
+	getClipsByPeriodHandler := handlers3.NewGetClipsByPeriodHandler(getClipsByPeriod)
+	updateClipsByPeriod := usecases3.NewUpdateClipsByPeriod(clipService, clipMapper, youTubeService)
+	updateClipsHandler := handlers3.NewUpdateClipsHandler(updateClipsByPeriod)
+	application := NewApplication(getAllSongsHandler, createSongHandler, updateSongsHandler, getChannelsHandler, createChannelHandler, updateChannelsFromYoutubeHandler, getClipsByPeriodHandler, updateClipsHandler)
 	return application, func() {
 	}, nil
 }
@@ -62,11 +73,14 @@ type Application struct {
 	GetChannelsHandler               *handlers2.GetChannelsHandler
 	CreateChannelHandler             *handlers2.CreateChannelHandler
 	UpdateChannelsFromYoutubeHandler *handlers2.UpdateChannelsFromYoutubeHandler
+	GetClipsByPeriodHandler          *handlers3.GetClipsByPeriodHandler
+	UpdateClipsHandler               *handlers3.UpdateClipsHandler
 }
 
 // NewApplication creates a new Application.
 func NewApplication(getAllSongsHandler *handlers.GetAllSongsHandler, createSongHandler *handlers.CreateSongHandler, updateSongsHandler *handlers.UpdateSongsHandler,
 	getChannelsHandler *handlers2.GetChannelsHandler, createChannelHandler *handlers2.CreateChannelHandler, updateChannelsFromYoutubeHandler *handlers2.UpdateChannelsFromYoutubeHandler,
+	getClipsByPeriodHandler *handlers3.GetClipsByPeriodHandler, UpdateClipsHandler *handlers3.UpdateClipsHandler,
 ) *Application {
 	return &Application{
 		GetAllSongsHandler:               getAllSongsHandler,
@@ -75,5 +89,7 @@ func NewApplication(getAllSongsHandler *handlers.GetAllSongsHandler, createSongH
 		GetChannelsHandler:               getChannelsHandler,
 		CreateChannelHandler:             createChannelHandler,
 		UpdateChannelsFromYoutubeHandler: updateChannelsFromYoutubeHandler,
+		GetClipsByPeriodHandler:          getClipsByPeriodHandler,
+		UpdateClipsHandler:               UpdateClipsHandler,
 	}
 }

@@ -16,6 +16,8 @@ type Video struct {
 	Thumbnails   Thumbnails `firestore:"thumbnails"`
 	ChannelTitle string     `firestore:"channelTitle"`
 	ChannelID    string     `firestore:"channelId"`
+	ChannelIcon  string     `firestore:"channelIcon"`
+	Platform     Platform   `firestore:"platform"`
 	Tags         []string   `firestore:"tags"`
 }
 

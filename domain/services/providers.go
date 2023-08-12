@@ -9,4 +9,5 @@ var Set = wire.NewSet(
 	NewSongService,
 	NewYouTubeService,
 	NewChannelService,
+	NewClipService,
 )

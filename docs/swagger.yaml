@@ -1,17 +1,24 @@
 basePath: /api/v1
 definitions:
+  github_com_sugar-cat7_vspo-common-api_infrastructure_http_handlers_clip.VideosResponse:
+    properties:
+      videos:
+        items:
+          $ref: '#/definitions/mappers.VideoResponse'
+        type: array
+    type: object
+  github_com_sugar-cat7_vspo-common-api_infrastructure_http_handlers_song.VideosResponse:
+    properties:
+      videos:
+        items:
+          $ref: '#/definitions/mappers.VideoResponse'
+        type: array
+    type: object
   handlers.ChannelsResponse:
     properties:
       channels:
         items:
           $ref: '#/definitions/mappers.ChannelResponse'
-        type: array
-    type: object
-  handlers.VideosResponse:
-    properties:
-      videos:
-        items:
-          $ref: '#/definitions/mappers.VideoResponse'
         type: array
     type: object
   mappers.ChannelResponse:
@@ -202,6 +209,38 @@ paths:
           schema:
             type: string
       summary: Update Channels from Youtube
+  /clips:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all clips
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_sugar-cat7_vspo-common-api_infrastructure_http_handlers_clip.VideosResponse'
+      summary: Get all clips
+    put:
+      consumes:
+      - application/json
+      description: Update clips based on provided cronType
+      parameters:
+      - description: Type of the cron
+        in: body
+        name: cronType
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Clips updated successfully
+          schema:
+            type: string
+      summary: Update clips from YouTube
   /songs:
     get:
       consumes:
@@ -213,7 +252,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.VideosResponse'
+            $ref: '#/definitions/github_com_sugar-cat7_vspo-common-api_infrastructure_http_handlers_song.VideosResponse'
       summary: Get all songs
     post:
       consumes:
