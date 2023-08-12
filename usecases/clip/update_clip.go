@@ -37,6 +37,9 @@ func (g *UpdateClipsByPeriod) Execute(cronType entities.CronType) ([]*entities.V
 	}
 
 	videos, err := g.clipMapper.MapMultiple(clips)
+	if err != nil {
+		return nil, err
+	}
 
 	videoIDs := util.GetVideoIDs(videos)
 	// Fetch video data from YouTube API
