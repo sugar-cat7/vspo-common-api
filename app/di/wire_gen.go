@@ -11,6 +11,7 @@ import (
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/firestore"
 	handlers2 "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/channel"
 	handlers3 "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/clip"
+	handlers4 "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/cron"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/song"
 	usecases2 "github.com/sugar-cat7/vspo-common-api/usecases/channel"
 	usecases3 "github.com/sugar-cat7/vspo-common-api/usecases/clip"
@@ -60,7 +61,8 @@ func InitializeApplication() (*Application, func(), error) {
 	getClipsByPeriodHandler := handlers3.NewGetClipsByPeriodHandler(getClipsByPeriod)
 	updateClipsByPeriod := usecases3.NewUpdateClipsByPeriod(clipService, clipMapper, youTubeService)
 	updateClipsHandler := handlers3.NewUpdateClipsHandler(updateClipsByPeriod)
-	application := NewApplication(getAllSongsHandler, createSongHandler, updateSongsHandler, addNewSongHandler, getChannelsHandler, createChannelHandler, updateChannelsFromYoutubeHandler, getClipsByPeriodHandler, updateClipsHandler)
+	cronHandler := handlers4.NewCronHandler(updateClipsByPeriod, updateSongs)
+	application := NewApplication(getAllSongsHandler, createSongHandler, updateSongsHandler, addNewSongHandler, getChannelsHandler, createChannelHandler, updateChannelsFromYoutubeHandler, getClipsByPeriodHandler, updateClipsHandler, cronHandler)
 	return application, func() {
 	}, nil
 }
@@ -78,12 +80,14 @@ type Application struct {
 	UpdateChannelsFromYoutubeHandler *handlers2.UpdateChannelsFromYoutubeHandler
 	GetClipsByPeriodHandler          *handlers3.GetClipsByPeriodHandler
 	UpdateClipsHandler               *handlers3.UpdateClipsHandler
+	CronHandler                      *handlers4.CronHandler
 }
 
 // NewApplication creates a new Application.
 func NewApplication(getAllSongsHandler *handlers.GetAllSongsHandler, createSongHandler *handlers.CreateSongHandler, updateSongsHandler *handlers.UpdateSongsHandler, addNewSongHandler *handlers.AddNewSongHandler,
 	getChannelsHandler *handlers2.GetChannelsHandler, createChannelHandler *handlers2.CreateChannelHandler, updateChannelsFromYoutubeHandler *handlers2.UpdateChannelsFromYoutubeHandler,
-	getClipsByPeriodHandler *handlers3.GetClipsByPeriodHandler, UpdateClipsHandler *handlers3.UpdateClipsHandler,
+	getClipsByPeriodHandler *handlers3.GetClipsByPeriodHandler, updateClipsHandler *handlers3.UpdateClipsHandler,
+	cronHandler *handlers4.CronHandler,
 ) *Application {
 	return &Application{
 		GetAllSongsHandler:               getAllSongsHandler,
@@ -94,6 +98,7 @@ func NewApplication(getAllSongsHandler *handlers.GetAllSongsHandler, createSongH
 		CreateChannelHandler:             createChannelHandler,
 		UpdateChannelsFromYoutubeHandler: updateChannelsFromYoutubeHandler,
 		GetClipsByPeriodHandler:          getClipsByPeriodHandler,
-		UpdateClipsHandler:               UpdateClipsHandler,
+		UpdateClipsHandler:               updateClipsHandler,
+		CronHandler:                      cronHandler,
 	}
 }

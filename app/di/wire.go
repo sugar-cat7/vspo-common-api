@@ -10,6 +10,7 @@ import (
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers"
 	channel_handlers "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/channel"
 	clip_handlers "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/clip"
+	cron_handlers "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/cron"
 	song_handlers "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/song"
 	"github.com/sugar-cat7/vspo-common-api/usecases"
 )
@@ -25,12 +26,14 @@ type Application struct {
 	UpdateChannelsFromYoutubeHandler *channel_handlers.UpdateChannelsFromYoutubeHandler
 	GetClipsByPeriodHandler          *clip_handlers.GetClipsByPeriodHandler
 	UpdateClipsHandler               *clip_handlers.UpdateClipsHandler
+	CronHandler                      *cron_handlers.CronHandler
 }
 
 // NewApplication creates a new Application.
 func NewApplication(getAllSongsHandler *song_handlers.GetAllSongsHandler, createSongHandler *song_handlers.CreateSongHandler, updateSongsHandler *song_handlers.UpdateSongsHandler, addNewSongHandler *song_handlers.AddNewSongHandler,
 	getChannelsHandler *channel_handlers.GetChannelsHandler, createChannelHandler *channel_handlers.CreateChannelHandler, updateChannelsFromYoutubeHandler *channel_handlers.UpdateChannelsFromYoutubeHandler,
-	getClipsByPeriodHandler *clip_handlers.GetClipsByPeriodHandler, UpdateClipsHandler *clip_handlers.UpdateClipsHandler,
+	getClipsByPeriodHandler *clip_handlers.GetClipsByPeriodHandler, updateClipsHandler *clip_handlers.UpdateClipsHandler,
+	cronHandler *cron_handlers.CronHandler,
 ) *Application {
 	return &Application{
 		GetAllSongsHandler:               getAllSongsHandler,
@@ -41,7 +44,8 @@ func NewApplication(getAllSongsHandler *song_handlers.GetAllSongsHandler, create
 		CreateChannelHandler:             createChannelHandler,
 		UpdateChannelsFromYoutubeHandler: updateChannelsFromYoutubeHandler,
 		GetClipsByPeriodHandler:          getClipsByPeriodHandler,
-		UpdateClipsHandler:               UpdateClipsHandler,
+		UpdateClipsHandler:               updateClipsHandler,
+		CronHandler:                      cronHandler,
 	}
 }
 
