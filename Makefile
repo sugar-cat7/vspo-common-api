@@ -18,7 +18,7 @@ wire_gen:
 	go generate ./app/di/wire.go
 
 mock_gen:
-	export PATH=$PATH:$(go env GOPATH)/bin
+	# export PATH=$($PATH):$(go env GOPATH)/bin
 	go generate ./domain/...
 
 swagger_gen:

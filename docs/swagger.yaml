@@ -214,6 +214,16 @@ paths:
       consumes:
       - application/json
       description: Retrieve all clips
+      parameters:
+      - description: Start Date
+        in: query
+        name: start_date
+        required: true
+        type: string
+      - description: End Date
+        in: query
+        name: end_date
+        type: string
       produces:
       - application/json
       responses:

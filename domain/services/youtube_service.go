@@ -4,7 +4,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"os"
 	"strings"
 
@@ -16,7 +15,7 @@ import (
 // YouTubeService is an interface for a YouTube implementation of a song service.
 type YouTubeService interface {
 	GetVideos(videoIDs []string) ([]*youtube.Video, error)
-	GetPlaylists(playlistIDs []string) ([]*youtube.Playlist, error)
+	GetPlaylists(playlistIDs []string) ([]*youtube.PlaylistItemContentDetails, error)
 	GetChannels(channelIDs []string) ([]*youtube.Channel, error)
 }
 
@@ -32,7 +31,7 @@ func NewYouTubeService() (YouTubeService, error) {
 	}
 
 	ctx := context.Background()
-	service, err := youtube.NewService(ctx, option.WithAPIKey(apiKey), option.WithHTTPClient(&http.Client{}))
+	service, err := youtube.NewService(ctx, option.WithAPIKey(apiKey))
 	if err != nil {
 		return nil, err
 	}
@@ -67,21 +66,20 @@ func (s *youtubeServiceImpl) GetVideos(videoIDs []string) ([]*youtube.Video, err
 	return videos, nil
 }
 
-func (s *youtubeServiceImpl) GetPlaylists(playlistIDs []string) ([]*youtube.Playlist, error) {
-	var playlists []*youtube.Playlist
-	playlistIDChunks, err := s.getChunks(playlistIDs)
-	if err != nil {
-		return nil, err
-	}
-	for _, chunk := range playlistIDChunks {
-		call := s.Service.Playlists.List([]string{"snippet"}).Id(strings.Join(chunk, ","))
+func (s *youtubeServiceImpl) GetPlaylists(playlistIDs []string) ([]*youtube.PlaylistItemContentDetails, error) {
+	var contentDetails []*youtube.PlaylistItemContentDetails
+	for _, playlistID := range playlistIDs {
+		call := s.Service.PlaylistItems.List([]string{"contentDetails"}).PlaylistId(playlistID).MaxResults(50)
 		response, err := call.Do()
 		if err != nil {
-			return nil, fmt.Errorf("error making Playlists.List call: %v", err)
+			return nil, fmt.Errorf("error making PlaylistItems.List call for playlist ID %v: %v", playlistID, err)
 		}
-		playlists = append(playlists, response.Items...)
+
+		for _, item := range response.Items {
+			contentDetails = append(contentDetails, item.ContentDetails)
+		}
 	}
-	return playlists, nil
+	return contentDetails, nil
 }
 
 func (s *youtubeServiceImpl) GetChannels(channelIDs []string) ([]*youtube.Channel, error) {

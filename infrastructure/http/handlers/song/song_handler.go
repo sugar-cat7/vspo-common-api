@@ -149,3 +149,51 @@ func (h *CreateSongHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// AddNewSongHandler is a handler for updating songs from Youtube.
+type AddNewSongHandler struct {
+	addNewSongsUsecase *usecases.AddNewSong
+}
+
+// NewAddNewSongHandler creates a new AddNewSongHandler.
+func NewAddNewSongHandler(u *usecases.AddNewSong) *AddNewSongHandler {
+	return &AddNewSongHandler{
+		addNewSongsUsecase: u,
+	}
+}
+
+// @Summary Create Song from Youtube
+// @Description Updates songs by fetching from Youtube using provided Video IDs.
+// @Accept  json
+// @Produce  json
+// @Param videoIds body []string true "Array of Video IDs"
+// @Success 200 {string} string "Songs updated successfully"
+// @Router /songs [post]
+func (h *AddNewSongHandler) Handle(w http.ResponseWriter, r *http.Request) {
+	// Define a new struct type to hold the request body parameters
+	type requestBody struct {
+		PlayListIds []string `json:"playListIds"`
+	}
+
+	// Create a new instance of requestBody
+	rb := &requestBody{}
+
+	// Decode the request body into the rb instance
+	err := json.NewDecoder(r.Body).Decode(rb)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	// Execute the use case with the cronType from the request body
+	songs, err := h.addNewSongsUsecase.Execute(rb.PlayListIds)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(songs)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}

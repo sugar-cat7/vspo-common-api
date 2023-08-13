@@ -1,6 +1,8 @@
 package usecases
 
 import (
+	"fmt"
+
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
 	"github.com/sugar-cat7/vspo-common-api/domain/services"
 	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
@@ -46,6 +48,10 @@ func (g *UpdateClipsByPeriod) Execute(cronType entities.CronType) ([]*entities.V
 	ytVideos, err := g.youtubeService.GetVideos(videoIDs)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(ytVideos) == 0 {
+		return nil, fmt.Errorf("Fail Fetching Video")
 	}
 
 	updatedVideos, err := util.UpdateViewCounts(cronType, ytVideos, videos)

@@ -40,6 +40,8 @@ func InitializeApplication() (*Application, func(), error) {
 	createSongHandler := handlers.NewCreateSongHandler(createSong)
 	updateSongs := usecases.NewUpdateSongs(youTubeService, songService, songMapper)
 	updateSongsHandler := handlers.NewUpdateSongsHandler(updateSongs)
+	addNewSong := usecases.NewAddNewSong(youTubeService, songService, songMapper)
+	addNewSongHandler := handlers.NewAddNewSongHandler(addNewSong)
 	channelRepository := firestore.NewChannelRepository(firestoreClient)
 	repositoriesChannelRepository := firestore.ProvideChannelRepository(firestoreClient, channelRepository)
 	channelService := services.NewChannelService(repositoriesChannelRepository)
@@ -58,7 +60,7 @@ func InitializeApplication() (*Application, func(), error) {
 	getClipsByPeriodHandler := handlers3.NewGetClipsByPeriodHandler(getClipsByPeriod)
 	updateClipsByPeriod := usecases3.NewUpdateClipsByPeriod(clipService, clipMapper, youTubeService)
 	updateClipsHandler := handlers3.NewUpdateClipsHandler(updateClipsByPeriod)
-	application := NewApplication(getAllSongsHandler, createSongHandler, updateSongsHandler, getChannelsHandler, createChannelHandler, updateChannelsFromYoutubeHandler, getClipsByPeriodHandler, updateClipsHandler)
+	application := NewApplication(getAllSongsHandler, createSongHandler, updateSongsHandler, addNewSongHandler, getChannelsHandler, createChannelHandler, updateChannelsFromYoutubeHandler, getClipsByPeriodHandler, updateClipsHandler)
 	return application, func() {
 	}, nil
 }
@@ -70,6 +72,7 @@ type Application struct {
 	GetAllSongsHandler               *handlers.GetAllSongsHandler
 	CreateSongHandler                *handlers.CreateSongHandler
 	UpdateSongsHandler               *handlers.UpdateSongsHandler
+	AddNewSongHandler                *handlers.AddNewSongHandler
 	GetChannelsHandler               *handlers2.GetChannelsHandler
 	CreateChannelHandler             *handlers2.CreateChannelHandler
 	UpdateChannelsFromYoutubeHandler *handlers2.UpdateChannelsFromYoutubeHandler
@@ -78,7 +81,7 @@ type Application struct {
 }
 
 // NewApplication creates a new Application.
-func NewApplication(getAllSongsHandler *handlers.GetAllSongsHandler, createSongHandler *handlers.CreateSongHandler, updateSongsHandler *handlers.UpdateSongsHandler,
+func NewApplication(getAllSongsHandler *handlers.GetAllSongsHandler, createSongHandler *handlers.CreateSongHandler, updateSongsHandler *handlers.UpdateSongsHandler, addNewSongHandler *handlers.AddNewSongHandler,
 	getChannelsHandler *handlers2.GetChannelsHandler, createChannelHandler *handlers2.CreateChannelHandler, updateChannelsFromYoutubeHandler *handlers2.UpdateChannelsFromYoutubeHandler,
 	getClipsByPeriodHandler *handlers3.GetClipsByPeriodHandler, UpdateClipsHandler *handlers3.UpdateClipsHandler,
 ) *Application {
@@ -86,6 +89,7 @@ func NewApplication(getAllSongsHandler *handlers.GetAllSongsHandler, createSongH
 		GetAllSongsHandler:               getAllSongsHandler,
 		CreateSongHandler:                createSongHandler,
 		UpdateSongsHandler:               updateSongsHandler,
+		AddNewSongHandler:                addNewSongHandler,
 		GetChannelsHandler:               getChannelsHandler,
 		CreateChannelHandler:             createChannelHandler,
 		UpdateChannelsFromYoutubeHandler: updateChannelsFromYoutubeHandler,

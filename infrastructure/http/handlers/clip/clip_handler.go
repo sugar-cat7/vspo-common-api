@@ -25,6 +25,8 @@ type VideosResponse mappers.VideosResponse
 
 // @Summary Get all clips
 // @Description Retrieve all clips
+// @Param start_date query string true "Start Date" example="2023-08-06"
+// @Param end_date query string false "End Date" example="2023-08-12"
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} VideosResponse

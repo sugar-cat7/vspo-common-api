@@ -5,4 +5,4 @@ import (
 )
 
 // Set is a Wire provider set that provides a song usecases.
-var Set = wire.NewSet(NewGetAllSongsHandler, NewCreateSongHandler, NewUpdateSongsHandler)
+var Set = wire.NewSet(NewGetAllSongsHandler, NewCreateSongHandler, NewUpdateSongsHandler, NewAddNewSongHandler)

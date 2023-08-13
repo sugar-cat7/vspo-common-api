@@ -53,6 +53,7 @@ func (cm *ClipMapper) BindAndUpdate(cronType entities.CronType, clip *entities2.
 ) error {
 	clip.ThumbnailURL = video.Thumbnails.Medium.URL
 	clip.ViewCount = video.ViewCount.Total
+	clip.NewViewCount.Total = video.ViewCount.Total
 	switch cronType {
 	case entities.Daily:
 		clip.NewViewCount.Daily = video.ViewCount.Daily

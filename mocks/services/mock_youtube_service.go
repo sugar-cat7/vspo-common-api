@@ -50,10 +50,10 @@ func (mr *MockYouTubeServiceMockRecorder) GetChannels(arg0 interface{}) *gomock.
 }
 
 // GetPlaylists mocks base method.
-func (m *MockYouTubeService) GetPlaylists(arg0 []string) ([]*youtube.Playlist, error) {
+func (m *MockYouTubeService) GetPlaylists(arg0 []string) ([]*youtube.PlaylistItemContentDetails, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPlaylists", arg0)
-	ret0, _ := ret[0].([]*youtube.Playlist)
+	ret0, _ := ret[0].([]*youtube.PlaylistItemContentDetails)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

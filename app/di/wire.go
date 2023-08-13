@@ -19,6 +19,7 @@ type Application struct {
 	GetAllSongsHandler               *song_handlers.GetAllSongsHandler
 	CreateSongHandler                *song_handlers.CreateSongHandler
 	UpdateSongsHandler               *song_handlers.UpdateSongsHandler
+	AddNewSongHandler                *song_handlers.AddNewSongHandler
 	GetChannelsHandler               *channel_handlers.GetChannelsHandler
 	CreateChannelHandler             *channel_handlers.CreateChannelHandler
 	UpdateChannelsFromYoutubeHandler *channel_handlers.UpdateChannelsFromYoutubeHandler
@@ -27,7 +28,7 @@ type Application struct {
 }
 
 // NewApplication creates a new Application.
-func NewApplication(getAllSongsHandler *song_handlers.GetAllSongsHandler, createSongHandler *song_handlers.CreateSongHandler, updateSongsHandler *song_handlers.UpdateSongsHandler,
+func NewApplication(getAllSongsHandler *song_handlers.GetAllSongsHandler, createSongHandler *song_handlers.CreateSongHandler, updateSongsHandler *song_handlers.UpdateSongsHandler, addNewSongHandler *song_handlers.AddNewSongHandler,
 	getChannelsHandler *channel_handlers.GetChannelsHandler, createChannelHandler *channel_handlers.CreateChannelHandler, updateChannelsFromYoutubeHandler *channel_handlers.UpdateChannelsFromYoutubeHandler,
 	getClipsByPeriodHandler *clip_handlers.GetClipsByPeriodHandler, UpdateClipsHandler *clip_handlers.UpdateClipsHandler,
 ) *Application {
@@ -35,6 +36,7 @@ func NewApplication(getAllSongsHandler *song_handlers.GetAllSongsHandler, create
 		GetAllSongsHandler:               getAllSongsHandler,
 		CreateSongHandler:                createSongHandler,
 		UpdateSongsHandler:               updateSongsHandler,
+		AddNewSongHandler:                addNewSongHandler,
 		GetChannelsHandler:               getChannelsHandler,
 		CreateChannelHandler:             createChannelHandler,
 		UpdateChannelsFromYoutubeHandler: updateChannelsFromYoutubeHandler,

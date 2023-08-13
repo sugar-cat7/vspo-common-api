@@ -25,17 +25,27 @@ func NewClipRepository(client repositories.FirestoreClient) *ClipRepository {
 func (r *ClipRepository) FindAllByPeriod(start, end string) ([]*entities.Clip, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	startTime, err := time.Parse(time.RFC3339, start)
+
+	const layout = "2006-01-02"
+	if start == "" {
+		startTime := time.Now().AddDate(0, 0, -7).Format(layout) // 1週間前の日付
+		start = startTime
+	}
+
+	startTime, err := time.Parse(layout, start)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse start time: %w", err)
 	}
 
-	// endTime, err := time.Parse(time.RFC3339, end)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to parse end time: %w", err)
+	// endTime := time.Now()
+	// if end != "" {
+	// 	endTime, err = time.Parse(layout, end)
+	// 	if err != nil {
+	// 		return nil, fmt.Errorf("failed to parse end time: %w", err)
+	// 	}
 	// }
 
-	docs, err := r.client.Collection(r.collectionName).Where("CreatedAt", ">=", startTime).Documents(ctx).GetAll()
+	docs, err := r.client.Collection(r.collectionName).Where("createdAt", ">=", startTime).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get documents from Firestore: %w", err)
 	}

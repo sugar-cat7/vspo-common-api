@@ -19,7 +19,33 @@ func UpdateViewCounts(cronType entities.CronType, ytVideos []*youtube.Video, vid
 
 	for _, video := range videos {
 		ytVideo, exists := videoMap[video.ID]
+		// ID:          ytVideo.Id,
+		// Title:       ytVideo.Snippet.Title,
+		// Description: ytVideo.Snippet.Description,
+		// ViewCount: entities.Views{
+		// 	Total: fmt.Sprintf("%d", ytVideo.Statistics.ViewCount),
+		// },
+		// PublishedAt: publishedAt,
+		// Thumbnails: entities.Thumbnails{
+		// 	Default:  entities.Thumbnail{URL: ytVideo.Snippet.Thumbnails.Default.Url, Width: int(ytVideo.Snippet.Thumbnails.Default.Width), Height: int(ytVideo.Snippet.Thumbnails.Default.Height)},
+		// 	Medium:   entities.Thumbnail{URL: ytVideo.Snippet.Thumbnails.Medium.Url, Width: int(ytVideo.Snippet.Thumbnails.Medium.Width), Height: int(ytVideo.Snippet.Thumbnails.Medium.Height)},
+		// 	High:     entities.Thumbnail{URL: ytVideo.Snippet.Thumbnails.High.Url, Width: int(ytVideo.Snippet.Thumbnails.High.Width), Height: int(ytVideo.Snippet.Thumbnails.High.Height)},
+		// 	Standard: entities.Thumbnail{URL: ytVideo.Snippet.Thumbnails.Standard.Url, Width: int(ytVideo.Snippet.Thumbnails.Standard.Width), Height: int(ytVideo.Snippet.Thumbnails.Standard.Height)},
+		// 	Maxres:   entities.Thumbnail{URL: ytVideo.Snippet.Thumbnails.Maxres.Url, Width: int(ytVideo.Snippet.Thumbnails.Maxres.Width), Height: int(ytVideo.Snippet.Thumbnails.Maxres.Height)},
+		// },
+		// ChannelTitle: ytVideo.Snippet.ChannelTitle,
+		// ChannelID:    ytVideo.Snippet.ChannelId,
+		// // You may need additional logic to map ChannelIcon and Platform
+		// Tags: ytVideo.Snippet.Tags,
+
 		if exists {
+			video.Thumbnails = entities.Thumbnails{
+				Default: entities.Thumbnail{URL: ytVideo.Snippet.Thumbnails.Default.Url, Width: int(ytVideo.Snippet.Thumbnails.Default.Width), Height: int(ytVideo.Snippet.Thumbnails.Default.Height)},
+				Medium:  entities.Thumbnail{URL: ytVideo.Snippet.Thumbnails.Medium.Url, Width: int(ytVideo.Snippet.Thumbnails.Medium.Width), Height: int(ytVideo.Snippet.Thumbnails.Medium.Height)},
+				High:    entities.Thumbnail{URL: ytVideo.Snippet.Thumbnails.High.Url, Width: int(ytVideo.Snippet.Thumbnails.High.Width), Height: int(ytVideo.Snippet.Thumbnails.High.Height)},
+				// Standard: entities.Thumbnail{URL: ytVideo.Snippet.Thumbnails.Standard.Url, Width: int(ytVideo.Snippet.Thumbnails.Standard.Width), Height: int(ytVideo.Snippet.Thumbnails.Standard.Height)},
+				// Maxres:   entities.Thumbnail{URL: ytVideo.Snippet.Thumbnails.Maxres.Url, Width: int(ytVideo.Snippet.Thumbnails.Maxres.Width), Height: int(ytVideo.Snippet.Thumbnails.Maxres.Height)},
+			}
 			// Update the views
 			switch cronType {
 			case entities.Daily:
