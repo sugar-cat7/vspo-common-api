@@ -17,10 +17,10 @@ type Clip struct {
 	IconURL      string            `firestore:"iconUrl"`
 	Platform     entities.Platform `firestore:"platform"`
 	ViewCount    string            `firestore:"viewCount"`
-	LikeCount    string            `firestore:"likeCount"`
-	CommentCount string            `firestore:"commentCount"`
-	NewViewCount entities.Views    `firestore:"newViewCount"`
-	CreatedAt    time.Time         `firestore:"createdAt"`
+	// LikeCount    string            `firestore:"likeCount"`
+	CommentCount string         `firestore:"commentCount"`
+	NewViewCount entities.Views `firestore:"newViewCount"`
+	CreatedAt    time.Time      `firestore:"createdAt"`
 }
 
 // GetUpdate returns the update of the Clip.
@@ -32,7 +32,7 @@ func (s Clip) GetUpdate() []firestore.Update {
 		{Path: "thumbnailUrl", Value: s.ThumbnailURL},
 		{Path: "iconUrl", Value: s.IconURL},
 		{Path: "viewCount", Value: s.ViewCount},
-		{Path: "likeCount", Value: s.LikeCount},
+		// {Path: "likeCount", Value: s.LikeCount},
 		{Path: "commentCount", Value: s.CommentCount},
 		{Path: "newViewCount", Value: s.NewViewCount},
 	}

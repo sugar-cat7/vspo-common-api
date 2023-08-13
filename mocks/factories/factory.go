@@ -212,7 +212,7 @@ func NewClip(clipID string) *entities2.Clip {
 		IconURL:      "https://example.com/icon.jpg",
 		Platform:     "youtube",
 		ViewCount:    "1000",
-		LikeCount:    "500",
+		// LikeCount:    "500",
 		CommentCount: "200",
 		NewViewCount: entities.Views{
 			Total: "1000",

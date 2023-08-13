@@ -58,5 +58,5 @@ func GetStartTime(cronType entities.CronType) (string, error) {
 		return "", fmt.Errorf("Unsupported CronType: %s", cronType)
 	}
 
-	return startTime.Format(time.RFC3339), nil
+	return startTime.Format("2006-01-02"), nil
 }

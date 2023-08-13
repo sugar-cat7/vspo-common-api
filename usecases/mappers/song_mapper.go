@@ -45,16 +45,16 @@ func (sm *SongMapper) Map(ytVideo *youtube.Video) (*entities.Video, error) {
 				Width:  int(ytVideo.Snippet.Thumbnails.High.Width),
 				Height: int(ytVideo.Snippet.Thumbnails.High.Height),
 			},
-			Standard: entities.Thumbnail{
-				URL:    ytVideo.Snippet.Thumbnails.Standard.Url,
-				Width:  int(ytVideo.Snippet.Thumbnails.Standard.Width),
-				Height: int(ytVideo.Snippet.Thumbnails.Standard.Height),
-			},
-			Maxres: entities.Thumbnail{
-				URL:    ytVideo.Snippet.Thumbnails.Maxres.Url,
-				Width:  int(ytVideo.Snippet.Thumbnails.Maxres.Width),
-				Height: int(ytVideo.Snippet.Thumbnails.Maxres.Height),
-			},
+			// Standard: entities.Thumbnail{
+			// 	URL:    ytVideo.Snippet.Thumbnails.Standard.Url,
+			// 	Width:  int(ytVideo.Snippet.Thumbnails.Standard.Width),
+			// 	Height: int(ytVideo.Snippet.Thumbnails.Standard.Height),
+			// },
+			// Maxres: entities.Thumbnail{
+			// 	URL:    ytVideo.Snippet.Thumbnails.Maxres.Url,
+			// 	Width:  int(ytVideo.Snippet.Thumbnails.Maxres.Width),
+			// 	Height: int(ytVideo.Snippet.Thumbnails.Maxres.Height),
+			// },
 		},
 		ChannelTitle: ytVideo.Snippet.ChannelTitle,
 		ChannelID:    ytVideo.Snippet.ChannelId,
