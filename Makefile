@@ -26,3 +26,12 @@ swagger_gen:
 
 lint:
 	golangci-lint run ./...
+
+firestore_emulator:
+	gcloud beta emulators firestore start --host-port=0.0.0.0:8081
+
+firestore_emulator_clear:
+	gcloud beta emulators firestore clear
+
+run:
+	go run main.go

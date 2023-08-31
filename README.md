@@ -5,19 +5,10 @@ This project provides common API components for the unofficial VSPO fan site.
 Sites:
 
 - [すぽじゅーる](https://www.vspo-schedule.com/)
-- [すぽうた]()
 
 other Repositories:
 
-- [すぽじゅーる WebApp(非公開)]()
-
-- [すぽじゅーる API(非公開)]()
-
-- [すぽじゅーる NativeApp](https://github.com/sugar-cat7/vspo-schedule-native)
-
-- [すぽうた Web(実装中)]()
-
-- [すぽうた API(非公開)]()
+- [すぽじゅーる](https://github.com/sugar-cat7/vspo-schedule-web)
 
 ## Project Structure
 
@@ -29,3 +20,24 @@ other Repositories:
 - `usecases/`: Use case definitions for the application.
 - `util/`: Utility functions.
 - `config/`: Configuration-related code.
+
+### quick start(local)
+
+- setting `.env` file
+
+```bash
+YOUTUBE_API_KEY=test-api-key
+FIRESTORE_EMULATOR_HOST=localhost:8081
+```
+
+- start firestore emulator
+
+```bash
+make firestore
+```
+
+- start server
+
+```bash
+make run
+```
