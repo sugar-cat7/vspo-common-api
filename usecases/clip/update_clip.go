@@ -4,23 +4,22 @@ import (
 	"fmt"
 
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
-	"github.com/sugar-cat7/vspo-common-api/domain/services"
+	"github.com/sugar-cat7/vspo-common-api/domain/ports"
+	"github.com/sugar-cat7/vspo-common-api/domain/repositories"
 	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
 	"github.com/sugar-cat7/vspo-common-api/util"
 )
 
 // UpdateClipsByPeriod is a use case for updateting all clips from Firestore.
 type UpdateClipsByPeriod struct {
-	clipService    services.ClipService
-	clipMapper     *mappers.ClipMapper
-	youtubeService services.YouTubeService
+	clipRepository repositories.ClipRepository
+	youtubeService ports.YouTubeService
 }
 
 // NewUpdateClipsByPeriod creates a new UpdateClipsByPeriod.
-func NewUpdateClipsByPeriod(clipService services.ClipService, clipMapper *mappers.ClipMapper, youtubeService services.YouTubeService) *UpdateClipsByPeriod {
+func NewUpdateClipsByPeriod(clipRepository repositories.ClipRepository, youtubeService ports.YouTubeService) *UpdateClipsByPeriod {
 	return &UpdateClipsByPeriod{
-		clipService:    clipService,
-		clipMapper:     clipMapper,
+		clipRepository: clipRepository,
 		youtubeService: youtubeService,
 	}
 }
@@ -33,12 +32,12 @@ func (g *UpdateClipsByPeriod) Execute(cronType entities.CronType) ([]*entities.V
 	}
 
 	// Update all clips from Firestore
-	clips, err := g.clipService.FindAllByPeriod(start, "")
+	clips, err := g.clipRepository.FindAllByPeriod(start, "")
 	if err != nil {
 		return nil, err
 	}
 
-	videos, err := g.clipMapper.MapMultiple(clips)
+	videos, err := mappers.ClipMapMultiple(clips)
 	if err != nil {
 		return nil, err
 	}
@@ -59,16 +58,16 @@ func (g *UpdateClipsByPeriod) Execute(cronType entities.CronType) ([]*entities.V
 		return nil, err
 	}
 
-	err = g.clipMapper.BindAndUpdateMultiple(cronType, clips, updatedVideos)
+	err = mappers.BindAndUpdateMultiple(cronType, clips, updatedVideos)
 	if err != nil {
 		return nil, err
 	}
-	err = g.clipService.UpdateClipsInBatch(clips)
+	err = g.clipRepository.UpdateInBatch(clips)
 	if err != nil {
 		return nil, err
 	}
 
-	videos, err = g.clipMapper.MapMultiple(clips)
+	videos, err = mappers.ClipMapMultiple(clips)
 	if err != nil {
 		return nil, err
 	}

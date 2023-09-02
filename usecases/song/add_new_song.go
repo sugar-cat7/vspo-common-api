@@ -2,40 +2,46 @@ package usecases
 
 import (
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
-	"github.com/sugar-cat7/vspo-common-api/domain/services"
+	"github.com/sugar-cat7/vspo-common-api/domain/ports"
+	"github.com/sugar-cat7/vspo-common-api/domain/repositories"
 	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
 )
 
 type AddNewSong struct {
-	youtubeService services.YouTubeService
-	songService    services.SongService
-	songMapper     *mappers.SongMapper
+	youtubeService ports.YouTubeService
+	songRepository repositories.SongRepository
 }
 
-func NewAddNewSong(youtubeService services.YouTubeService, songService services.SongService, songMapper *mappers.SongMapper) *AddNewSong {
+func NewAddNewSong(youtubeService ports.YouTubeService, songRepository repositories.SongRepository) *AddNewSong {
 	return &AddNewSong{
 		youtubeService: youtubeService,
-		songService:    songService,
-		songMapper:     songMapper,
+		songRepository: songRepository,
 	}
 }
 
 func (c *AddNewSong) Execute(playlistIDs []string) ([]*entities.Video, error) {
-	exsistVideoIds, err := c.songService.GetSongIDs()
-	if err != nil {
-		return nil, err
-	}
+
 	playList, err := c.youtubeService.GetPlaylists(playlistIDs)
 	if err != nil {
 		return nil, err
 	}
 
-	videoIDs := make([]string, 0)
+	exVideos, err := c.songRepository.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	existVideoIDs := make([]string, 0, len(exVideos))
+	for _, exVideo := range exVideos {
+		existVideoIDs = append(existVideoIDs, exVideo.ID)
+	}
+
+	videoIDs := make([]string, 0, len(playList))
 	for _, playlist := range playList {
 
 		exists := false
-		for _, existVideoId := range exsistVideoIds {
-			if playlist.VideoId == existVideoId {
+		for _, existVideoID := range existVideoIDs {
+			if playlist.VideoId == existVideoID {
 				exists = true
 				break
 			}
@@ -54,13 +60,13 @@ func (c *AddNewSong) Execute(playlistIDs []string) ([]*entities.Video, error) {
 	}
 
 	// Map the video data to Song models
-	songs, err := c.songMapper.MapMultiple(videos)
+	songs, err := mappers.SongMapMultiple(videos)
 	if err != nil {
 		return nil, err
 	}
 
 	// Save the new songs to Firestore
-	err = c.songService.CreateSongsInBatch(songs)
+	err = c.songRepository.CreateInBatch(songs)
 	if err != nil {
 		return nil, err
 	}

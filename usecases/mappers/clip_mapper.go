@@ -7,11 +7,8 @@ import (
 	entities2 "github.com/sugar-cat7/vspo-common-api/domain/entities/legacy"
 )
 
-// ClipMapper maps a Clip to a domain Video.
-type ClipMapper struct{}
-
-// Map maps a Clip to a domain Video.
-func (cm *ClipMapper) Map(clip *entities2.Clip) (*entities.Video, error) {
+// ClipMap maps a Clip to a domain Video.
+func ClipMap(clip *entities2.Clip) (*entities.Video, error) {
 	return &entities.Video{
 		ID:          clip.ID,
 		Title:       clip.Title,
@@ -35,11 +32,11 @@ func (cm *ClipMapper) Map(clip *entities2.Clip) (*entities.Video, error) {
 	}, nil
 }
 
-// MapMultiple maps multiple Clips to domain Videos.
-func (cm *ClipMapper) MapMultiple(clips []*entities2.Clip) ([]*entities.Video, error) {
+// ClipMapMultiple maps multiple Clips to domain Videos.
+func ClipMapMultiple(clips []*entities2.Clip) ([]*entities.Video, error) {
 	videos := make([]*entities.Video, len(clips))
 	for i, clip := range clips {
-		video, err := cm.Map(clip)
+		video, err := ClipMap(clip)
 		if err != nil {
 			return nil, err
 		}
@@ -49,7 +46,8 @@ func (cm *ClipMapper) MapMultiple(clips []*entities2.Clip) ([]*entities.Video, e
 	return videos, nil
 }
 
-func (cm *ClipMapper) BindAndUpdate(cronType entities.CronType, clip *entities2.Clip, video *entities.Video,
+// BindAndUpdate binds a Video to a Clip and updates the Clip.
+func BindAndUpdate(cronType entities.CronType, clip *entities2.Clip, video *entities.Video,
 ) error {
 	clip.ThumbnailURL = video.Thumbnails.Medium.URL
 	clip.ViewCount = video.ViewCount.Total
@@ -65,13 +63,14 @@ func (cm *ClipMapper) BindAndUpdate(cronType entities.CronType, clip *entities2.
 	return nil
 }
 
-func (cm *ClipMapper) BindAndUpdateMultiple(cronType entities.CronType, clips []*entities2.Clip, videos []*entities.Video) error {
+// BindAndUpdateMultiple binds multiple Videos to multiple Clips and updates the Clips.
+func BindAndUpdateMultiple(cronType entities.CronType, clips []*entities2.Clip, videos []*entities.Video) error {
 	if len(clips) != len(videos) {
 		return fmt.Errorf("Length of clips and videos must be the same")
 	}
 	for i, clip := range clips {
 		video := videos[i]
-		err := cm.BindAndUpdate(cronType, clip, video)
+		err := BindAndUpdate(cronType, clip, video)
 		if err != nil {
 			return err
 		}

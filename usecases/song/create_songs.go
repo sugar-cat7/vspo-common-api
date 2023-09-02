@@ -1,21 +1,20 @@
 package usecases
 
 import (
-	"github.com/sugar-cat7/vspo-common-api/domain/services"
+	"github.com/sugar-cat7/vspo-common-api/domain/ports"
+	"github.com/sugar-cat7/vspo-common-api/domain/repositories"
 	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
 )
 
 type CreateSong struct {
-	youtubeService services.YouTubeService
-	songService    services.SongService
-	songMapper     *mappers.SongMapper
+	youtubeService ports.YouTubeService
+	songRepository repositories.SongRepository
 }
 
-func NewCreateSong(youtubeService services.YouTubeService, songService services.SongService, songMapper *mappers.SongMapper) *CreateSong {
+func NewCreateSong(youtubeService ports.YouTubeService, songRepository repositories.SongRepository) *CreateSong {
 	return &CreateSong{
 		youtubeService: youtubeService,
-		songService:    songService,
-		songMapper:     songMapper,
+		songRepository: songRepository,
 	}
 }
 
@@ -27,13 +26,13 @@ func (c *CreateSong) Execute(videoIDs []string) error {
 	}
 
 	// Map the video data to Song models
-	songs, err := c.songMapper.MapMultiple(videos)
+	songs, err := mappers.SongMapMultiple(videos)
 	if err != nil {
 		return err
 	}
 
 	// Save the new songs to Firestore
-	err = c.songService.CreateSongsInBatch(songs)
+	err = c.songRepository.CreateInBatch(songs)
 	if err != nil {
 		return err
 	}

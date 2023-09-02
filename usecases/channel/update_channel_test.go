@@ -6,8 +6,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/sugar-cat7/vspo-common-api/mocks/factories"
-	mocks "github.com/sugar-cat7/vspo-common-api/mocks/services"
-	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
+	mock_port "github.com/sugar-cat7/vspo-common-api/mocks/ports"
+	mock_repo "github.com/sugar-cat7/vspo-common-api/mocks/repositories"
 	"google.golang.org/api/youtube/v3"
 )
 
@@ -39,16 +39,15 @@ func TestUpdateChannelsFromYoutube_Execute(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockYoutubeService := mocks.NewMockYouTubeService(ctrl)
-			mockChannelService := mocks.NewMockChannelService(ctrl)
+			mockYoutubeService := mock_port.NewMockYouTubeService(ctrl)
+			mockChannelRepository := mock_repo.NewMockChannelRepository(ctrl)
 
 			mockYoutubeService.EXPECT().GetChannels(tt.channelIDs).Return(tt.newChannelData, nil).Times(1)
-			mockChannelService.EXPECT().UpdateChannelsInBatch(gomock.Not(gomock.Len(0))).Return(nil).Times(1)
+			mockChannelRepository.EXPECT().UpdateInBatch(gomock.Not(gomock.Len(0))).Return(nil).Times(1)
 
 			u := NewUpdateChannelsFromYoutube(
 				mockYoutubeService,
-				mockChannelService,
-				&mappers.ChannelMapper{},
+				mockChannelRepository,
 			)
 
 			err := u.Execute(tt.channelIDs)
