@@ -71,6 +71,9 @@ func Config() (client *firestore.Client, err error) {
 		}
 
 		client, err = app.Firestore(ctx)
+		if err != nil {
+			log.Fatalf("error getting Firestore client: %v\n", err)
+		}
 	}
 
 	if err != nil {
