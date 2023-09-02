@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
 	"github.com/sugar-cat7/vspo-common-api/mocks/factories"
-	mocks "github.com/sugar-cat7/vspo-common-api/mocks/services"
-	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
+	mock_port "github.com/sugar-cat7/vspo-common-api/mocks/ports"
+	mock_repo "github.com/sugar-cat7/vspo-common-api/mocks/repositories"
 	"google.golang.org/api/youtube/v3"
 )
 
@@ -47,17 +47,16 @@ func TestUpdateSongs_Execute(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockYoutubeService := mocks.NewMockYouTubeService(ctrl)
-			mockSongService := mocks.NewMockSongService(ctrl)
+			mockYoutubeService := mock_port.NewMockYouTubeService(ctrl)
+			mockSongRepository := mock_repo.NewMockSongRepository(ctrl)
 
-			mockSongService.EXPECT().GetAllSongs().Return(tt.allSongsData, nil).Times(1)
+			mockSongRepository.EXPECT().GetAll().Return(tt.allSongsData, nil).Times(1)
 			mockYoutubeService.EXPECT().GetVideos(tt.videoIDs).Return(tt.newVideoData, nil).Times(1)
-			mockSongService.EXPECT().UpdateSongsInBatch(gomock.Not(gomock.Len(0))).Return(nil).Times(1)
+			mockSongRepository.EXPECT().UpdateInBatch(gomock.Not(gomock.Len(0))).Return(nil).Times(1)
 
 			us := &UpdateSongs{
 				youtubeService: mockYoutubeService,
-				songService:    mockSongService,
-				songMapper:     &mappers.SongMapper{},
+				songRepository: mockSongRepository,
 			}
 
 			err := us.Execute(tt.cronType)

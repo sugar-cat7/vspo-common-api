@@ -8,15 +8,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
 	"github.com/sugar-cat7/vspo-common-api/mocks/factories"
-	mocks "github.com/sugar-cat7/vspo-common-api/mocks/services"
+	mock_repo "github.com/sugar-cat7/vspo-common-api/mocks/repositories"
 )
 
 func TestNewGetAllSongs(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockSongService := mocks.NewMockSongService(ctrl)
-	got := NewGetAllSongs(mockSongService)
+	mockSongRepository := mock_repo.NewMockSongRepository(ctrl)
+	got := NewGetAllSongs(mockSongRepository)
 
 	assert.NotNil(t, got, "NewGetAllSongs() should not return nil")
 }
@@ -46,15 +46,15 @@ func TestGetAllSongs_Execute(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockSongService := mocks.NewMockSongService(ctrl)
+			mockSongRepository := mock_repo.NewMockSongRepository(ctrl)
 
 			if tt.wantErr {
-				mockSongService.EXPECT().GetAllSongs().Return(tt.songs, errors.New("some error"))
+				mockSongRepository.EXPECT().GetAll().Return(tt.songs, errors.New("some error"))
 			} else {
-				mockSongService.EXPECT().GetAllSongs().Return(tt.songs, nil)
+				mockSongRepository.EXPECT().GetAll().Return(tt.songs, nil)
 			}
 
-			g := NewGetAllSongs(mockSongService)
+			g := NewGetAllSongs(mockSongRepository)
 
 			got, err := g.Execute()
 

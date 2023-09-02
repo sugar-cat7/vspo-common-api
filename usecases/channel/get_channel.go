@@ -2,25 +2,25 @@ package usecases
 
 import (
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
-	"github.com/sugar-cat7/vspo-common-api/domain/services"
+	"github.com/sugar-cat7/vspo-common-api/domain/repositories"
 )
 
 // GetChannels is a use case for getting all channels from Firestore.
 type GetChannels struct {
-	channelService services.ChannelService
+	channelRepository repositories.ChannelRepository
 }
 
 // NewGetChannels creates a new GetChannels.
-func NewGetChannels(channelService services.ChannelService) *GetChannels {
+func NewGetChannels(channelRepository repositories.ChannelRepository) *GetChannels {
 	return &GetChannels{
-		channelService: channelService,
+		channelRepository: channelRepository,
 	}
 }
 
 // Execute gets all channels from Firestore.
 func (g *GetChannels) Execute(ids []string) ([]*entities.Channel, error) {
 	// Get all channels from Firestore
-	channels, err := g.channelService.GetChannels(ids)
+	channels, err := g.channelRepository.GetInBatch(ids)
 	if err != nil {
 		return nil, err
 	}

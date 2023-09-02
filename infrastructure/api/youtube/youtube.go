@@ -1,5 +1,4 @@
-//go:generate mockgen -destination=../../mocks/services/mock_youtube_service.go -package=mocks github.com/sugar-cat7/vspo-common-api/domain/services YouTubeService
-package services
+package ports
 
 import (
 	"context"
@@ -7,24 +6,18 @@ import (
 	"os"
 	"strings"
 
+	"github.com/sugar-cat7/vspo-common-api/domain/ports"
 	"github.com/sugar-cat7/vspo-common-api/util"
 	"google.golang.org/api/option"
 	"google.golang.org/api/youtube/v3"
 )
-
-// YouTubeService is an interface for a YouTube implementation of a song service.
-type YouTubeService interface {
-	GetVideos(videoIDs []string) ([]*youtube.Video, error)
-	GetPlaylists(playlistIDs []string) ([]*youtube.PlaylistItemContentDetails, error)
-	GetChannels(channelIDs []string) ([]*youtube.Channel, error)
-}
 
 type youtubeServiceImpl struct {
 	Service *youtube.Service
 }
 
 // NewYouTubeService creates a new YouTubeService.
-func NewYouTubeService() (YouTubeService, error) {
+func NewYouTubeService() (ports.YouTubeService, error) {
 	apiKey, ok := os.LookupEnv("YOUTUBE_API_KEY")
 	if !ok {
 		return nil, fmt.Errorf("YOUTUBE_API_KEY not set")

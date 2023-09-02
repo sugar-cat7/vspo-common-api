@@ -1,23 +1,22 @@
 package usecases
 
 import (
-	"github.com/sugar-cat7/vspo-common-api/domain/services"
+	"github.com/sugar-cat7/vspo-common-api/domain/ports"
+	"github.com/sugar-cat7/vspo-common-api/domain/repositories"
 	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
 )
 
 // UpdateChannelsFromYoutube is a use case for updating channels in Firestore from YouTube.
 type UpdateChannelsFromYoutube struct {
-	youtubeService services.YouTubeService
-	channelService services.ChannelService
-	channelMapper  *mappers.ChannelMapper
+	youtubeService    ports.YouTubeService
+	channelRepository repositories.ChannelRepository
 }
 
 // NewUpdateChannelsFromYoutube creates a new UpdateChannelsFromYoutube.
-func NewUpdateChannelsFromYoutube(youtubeService services.YouTubeService, channelService services.ChannelService, channelMapper *mappers.ChannelMapper) *UpdateChannelsFromYoutube {
+func NewUpdateChannelsFromYoutube(youtubeService ports.YouTubeService, channelRepository repositories.ChannelRepository) *UpdateChannelsFromYoutube {
 	return &UpdateChannelsFromYoutube{
-		youtubeService: youtubeService,
-		channelService: channelService,
-		channelMapper:  channelMapper,
+		youtubeService:    youtubeService,
+		channelRepository: channelRepository,
 	}
 }
 
@@ -31,13 +30,13 @@ func (u *UpdateChannelsFromYoutube) Execute(ids []string) error {
 	}
 
 	// Map ytChannels to domain entities
-	channels, err := u.channelMapper.MapMultiple(ytChannels)
+	channels, err := mappers.ChannelMapMultiple(ytChannels)
 	if err != nil {
 		return err
 	}
 
 	// Update the channels in Firestore
-	err = u.channelService.UpdateChannelsInBatch(channels)
+	err = u.channelRepository.UpdateInBatch(channels)
 	if err != nil {
 		return err
 	}

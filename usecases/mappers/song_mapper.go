@@ -8,11 +8,8 @@ import (
 	"google.golang.org/api/youtube/v3"
 )
 
-// SongMapper maps a YouTube API video to a domain Song.
-type SongMapper struct{}
-
-// Map maps a YouTube API video to a domain Song.
-func (sm *SongMapper) Map(ytVideo *youtube.Video) (*entities.Video, error) {
+// SongMap maps a YouTube API video to a domain Song.
+func SongMap(ytVideo *youtube.Video) (*entities.Video, error) {
 	pubAt, err := time.Parse(time.RFC3339, ytVideo.Snippet.PublishedAt)
 	if err != nil {
 		return nil, err
@@ -62,11 +59,11 @@ func (sm *SongMapper) Map(ytVideo *youtube.Video) (*entities.Video, error) {
 	}, nil
 }
 
-// MapMultiple maps multiple YouTube API videos to domain Songs.
-func (sm *SongMapper) MapMultiple(ytVideos []*youtube.Video) ([]*entities.Video, error) {
+// SongMapMultiple maps multiple YouTube API videos to domain Songs.
+func SongMapMultiple(ytVideos []*youtube.Video) ([]*entities.Video, error) {
 	songs := make([]*entities.Video, len(ytVideos))
 	for i, ytVideo := range ytVideos {
-		song, err := sm.Map(ytVideo)
+		song, err := SongMap(ytVideo)
 		if err != nil {
 			return nil, err
 		}

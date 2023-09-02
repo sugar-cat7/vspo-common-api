@@ -1,3 +1,4 @@
+//go:generate mockgen -destination=../../mocks/repositories/mock_channel_repository.go -package=mocks github.com/sugar-cat7/vspo-common-api/domain/repositories ChannelRepository
 package repositories
 
 import (

@@ -9,25 +9,15 @@ import (
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
 	entities2 "github.com/sugar-cat7/vspo-common-api/domain/entities/legacy"
 	"github.com/sugar-cat7/vspo-common-api/mocks/factories"
-	mocks "github.com/sugar-cat7/vspo-common-api/mocks/services"
+	mock_repo "github.com/sugar-cat7/vspo-common-api/mocks/repositories"
 	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
 )
-
-func TestNewGetClipsByPeriod(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockClipService := mocks.NewMockClipService(ctrl)
-	got := NewGetClipsByPeriod(mockClipService, &mappers.ClipMapper{})
-
-	assert.NotNil(t, got, "NewGetClipsByPeriod() should not return nil")
-}
 
 func TestGetClipsByPeriod_Execute(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	c := &mappers.ClipMapper{}
-	testVideo, _ := c.Map(factories.NewClip("testID"))
+
+	testVideo, _ := mappers.ClipMap(factories.NewClip("testID"))
 
 	tests := []struct {
 		name    string
@@ -48,19 +38,19 @@ func TestGetClipsByPeriod_Execute(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockClipService := mocks.NewMockClipService(ctrl)
+			mockClipRepository := mock_repo.NewMockClipRepository(ctrl)
 
 			start, end := "2022-01-01", "2022-01-31"
 
 			if tt.wantErr {
-				mockClipService.EXPECT().FindAllByPeriod(start, end).Return(nil, errors.New("some error"))
+				mockClipRepository.EXPECT().FindAllByPeriod(start, end).Return(nil, errors.New("some error"))
 			} else {
-				mockClipService.EXPECT().FindAllByPeriod(start, end).Return(
+				mockClipRepository.EXPECT().FindAllByPeriod(start, end).Return(
 					[]*entities2.Clip{factories.NewClip("testID")}, nil)
 
 			}
 
-			g := NewGetClipsByPeriod(mockClipService, &mappers.ClipMapper{})
+			g := NewGetClipsByPeriod(mockClipRepository)
 
 			got, err := g.Execute(start, end)
 

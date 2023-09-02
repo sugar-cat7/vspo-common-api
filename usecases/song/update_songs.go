@@ -2,31 +2,29 @@ package usecases
 
 import (
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
-	"github.com/sugar-cat7/vspo-common-api/domain/services"
-	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
+	"github.com/sugar-cat7/vspo-common-api/domain/ports"
+	"github.com/sugar-cat7/vspo-common-api/domain/repositories"
 	"github.com/sugar-cat7/vspo-common-api/util"
 )
 
 // UpdateSongs is a use case for updating songs in Firestore from YouTube.
 type UpdateSongs struct {
-	youtubeService services.YouTubeService
-	songService    services.SongService
-	songMapper     *mappers.SongMapper
+	youtubeService ports.YouTubeService
+	songRepository repositories.SongRepository
 }
 
 // NewUpdateSongs creates a new UpdateSongs.
-func NewUpdateSongs(youtubeService services.YouTubeService, songService services.SongService, songMapper *mappers.SongMapper) *UpdateSongs {
+func NewUpdateSongs(youtubeService ports.YouTubeService, songRepository repositories.SongRepository) *UpdateSongs {
 	return &UpdateSongs{
 		youtubeService: youtubeService,
-		songService:    songService,
-		songMapper:     songMapper,
+		songRepository: songRepository,
 	}
 }
 
 // Execute updates the songs in Firestore from YouTube.
 func (u *UpdateSongs) Execute(cronType entities.CronType) error {
 	// Get all song IDs from Firestore
-	allVideos, err := u.songService.GetAllSongs()
+	allVideos, err := u.songRepository.GetAll()
 	if err != nil {
 		return err
 	}
@@ -45,7 +43,7 @@ func (u *UpdateSongs) Execute(cronType entities.CronType) error {
 	}
 
 	// Update the songs in Firestore
-	err = u.songService.UpdateSongsInBatch(updatedSongs)
+	err = u.songRepository.UpdateInBatch(updatedSongs)
 	if err != nil {
 		return err
 	}

@@ -1,15 +1,13 @@
 package usecases
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/sugar-cat7/vspo-common-api/mocks/factories"
-	mocks "github.com/sugar-cat7/vspo-common-api/mocks/services"
-
-	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
+	mock_port "github.com/sugar-cat7/vspo-common-api/mocks/ports"
+	mock_repo "github.com/sugar-cat7/vspo-common-api/mocks/repositories"
 	"google.golang.org/api/youtube/v3"
 )
 
@@ -36,20 +34,13 @@ func TestCreateChannel_Execute(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockYoutubeService := mocks.NewMockYouTubeService(ctrl)
-			mockChannelService := mocks.NewMockChannelService(ctrl)
-
+			mockYoutubeService := mock_port.NewMockYouTubeService(ctrl)
 			mockYoutubeService.EXPECT().GetChannels(tt.channelIDs).Return(tt.newChannelData, nil).Times(1)
-			if tt.expectCreateError {
-				mockChannelService.EXPECT().CreateChannelsInBatch(gomock.Not(gomock.Len(0))).Return(errors.New("create error")).Times(1)
-			} else {
-				mockChannelService.EXPECT().CreateChannelsInBatch(gomock.Not(gomock.Len(0))).Return(nil).Times(1)
-			}
-
+			mockChannelRepository := mock_repo.NewMockChannelRepository(ctrl)
+			mockChannelRepository.EXPECT().CreateInBatch(gomock.Any()).Return(nil).Times(1)
 			cc := &CreateChannel{
-				youtubeService: mockYoutubeService,
-				channelService: mockChannelService,
-				channelMapper:  &mappers.ChannelMapper{},
+				youtubeService:    mockYoutubeService,
+				channelRepository: mockChannelRepository,
 			}
 
 			err := cc.Execute(tt.channelIDs)

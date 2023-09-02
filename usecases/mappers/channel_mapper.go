@@ -8,11 +8,8 @@ import (
 	"google.golang.org/api/youtube/v3"
 )
 
-// ChannelMapper maps a YouTube API channel to a domain Channel.
-type ChannelMapper struct{}
-
-// Map maps a YouTube API channel to a domain Channel.
-func (cm *ChannelMapper) Map(ytChannel *youtube.Channel) (*entities.Channel, error) {
+// ChannelMap maps a YouTube API channel to a domain Channel.
+func ChannelMap(ytChannel *youtube.Channel) (*entities.Channel, error) {
 	pubAt, err := time.Parse(time.RFC3339, ytChannel.Snippet.PublishedAt)
 	if err != nil {
 		return nil, err
@@ -62,11 +59,11 @@ func (cm *ChannelMapper) Map(ytChannel *youtube.Channel) (*entities.Channel, err
 	}, nil
 }
 
-// MapMultiple maps multiple YouTube API channels to domain Channels.
-func (cm *ChannelMapper) MapMultiple(ytChannels []*youtube.Channel) ([]*entities.Channel, error) {
+// ChannelMapMultiple maps multiple YouTube API channels to domain Channels.
+func ChannelMapMultiple(ytChannels []*youtube.Channel) ([]*entities.Channel, error) {
 	channels := make([]*entities.Channel, len(ytChannels))
 	for i, ytChannel := range ytChannels {
-		channel, err := cm.Map(ytChannel)
+		channel, err := ChannelMap(ytChannel)
 		if err != nil {
 			return nil, err
 		}

@@ -5,7 +5,7 @@ package di
 
 import (
 	"github.com/google/wire"
-	"github.com/sugar-cat7/vspo-common-api/domain/services"
+	ports "github.com/sugar-cat7/vspo-common-api/infrastructure/api"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/firestore"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers"
 	channel_handlers "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/channel"
@@ -51,5 +51,5 @@ func NewApplication(getAllSongsHandler *song_handlers.GetAllSongsHandler, create
 
 // InitializeApplication initializes the entire application with all its dependencies using wire.
 func InitializeApplication() (*Application, func(), error) {
-	panic(wire.Build(services.Set, firestore.Set, handlers.Set, NewApplication, usecases.Set))
+	panic(wire.Build(ports.Set, firestore.Set, handlers.Set, NewApplication, usecases.Set))
 }
