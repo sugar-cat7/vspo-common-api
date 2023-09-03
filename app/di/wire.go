@@ -11,6 +11,8 @@ import (
 	channel_handlers "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/channel"
 	clip_handlers "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/clip"
 	cron_handlers "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/cron"
+	discord_handlers "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/discord"
+	livestream_handlers "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/livestream"
 	song_handlers "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/song"
 	"github.com/sugar-cat7/vspo-common-api/usecases"
 )
@@ -27,6 +29,8 @@ type Application struct {
 	GetClipsByPeriodHandler          *clip_handlers.GetClipsByPeriodHandler
 	UpdateClipsHandler               *clip_handlers.UpdateClipsHandler
 	CronHandler                      *cron_handlers.CronHandler
+	GetLiveStreamsByPeriodHandler    *livestream_handlers.GetLiveStreamsByPeriodHandler
+	DiscordSendMessageHandler        *discord_handlers.DiscordSendMessageHandler
 }
 
 // NewApplication creates a new Application.
@@ -34,6 +38,8 @@ func NewApplication(getAllSongsHandler *song_handlers.GetAllSongsHandler, create
 	getChannelsHandler *channel_handlers.GetChannelsHandler, createChannelHandler *channel_handlers.CreateChannelHandler, updateChannelsFromYoutubeHandler *channel_handlers.UpdateChannelsFromYoutubeHandler,
 	getClipsByPeriodHandler *clip_handlers.GetClipsByPeriodHandler, updateClipsHandler *clip_handlers.UpdateClipsHandler,
 	cronHandler *cron_handlers.CronHandler,
+	getLiveStreamsByPeriodHandler *livestream_handlers.GetLiveStreamsByPeriodHandler,
+	discordGetLiveStreamsHandler *discord_handlers.DiscordSendMessageHandler,
 ) *Application {
 	return &Application{
 		GetAllSongsHandler:               getAllSongsHandler,
@@ -46,6 +52,8 @@ func NewApplication(getAllSongsHandler *song_handlers.GetAllSongsHandler, create
 		GetClipsByPeriodHandler:          getClipsByPeriodHandler,
 		UpdateClipsHandler:               updateClipsHandler,
 		CronHandler:                      cronHandler,
+		GetLiveStreamsByPeriodHandler:    getLiveStreamsByPeriodHandler,
+		DiscordSendMessageHandler:        discordGetLiveStreamsHandler,
 	}
 }
 

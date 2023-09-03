@@ -201,8 +201,8 @@ func NewYoutubeChannel(id string) *youtube.Channel {
 	}
 }
 
-func NewClip(clipID string) *entities2.Clip {
-	return &entities2.Clip{
+func NewClip(clipID string) *entities2.OldVideo {
+	return &entities2.OldVideo{
 		ID:           clipID,
 		Title:        "title1",
 		Description:  "description1",
@@ -218,5 +218,27 @@ func NewClip(clipID string) *entities2.Clip {
 			Total: "1000",
 		},
 		CreatedAt: time.Date(2023, 01, 01, 0, 0, 0, 0, time.UTC),
+	}
+}
+
+func NewLiveStream(libestreamID string) *entities2.OldVideo {
+	return &entities2.OldVideo{
+		ID:           libestreamID,
+		Title:        "title1",
+		Description:  "description1",
+		ChannelID:    "channelID1",
+		ChannelTitle: "channelTitle1",
+		ThumbnailURL: "https://i.ytimg.com/vi/IWYydmhCA8o/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDz6fev5X2b3gpB-QRyvP3Zue4phQ",
+		IconURL:      "https://yt3.googleusercontent.com/ytc/AOPolaRJN3duCEREvTCkefZB05nmi5s6y7pd1f19exq_tA=s176-c-k-c0x00ffffff-no-rj",
+		Platform:     "youtube",
+		ViewCount:    "1000",
+		// LikeCount:    "500",
+		CommentCount: "200",
+		NewViewCount: entities.Views{
+			Total: "1000",
+		},
+		CreatedAt:          time.Date(2023, 01, 01, 0, 0, 0, 0, time.UTC),
+		ScheduledStartTime: time.Date(2023, 01, 01, 0, 0, 0, 0, time.UTC),
+		ActualEndTime:      time.Date(2023, 01, 02, 0, 0, 0, 0, time.UTC),
 	}
 }

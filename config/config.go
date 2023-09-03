@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"reflect"
 	"strings"
 
 	"cloud.google.com/go/firestore"
@@ -13,24 +14,62 @@ import (
 	"google.golang.org/api/option"
 )
 
+func addMockDataToFirestore(ctx context.Context, client *firestore.Client, collectionName string, dataSlice []interface{}) {
+	for _, data := range dataSlice {
+		dataValue := reflect.ValueOf(data)
+
+		// Check if dataValue is a pointer, if not, then it's directly a struct.
+		var docID string
+		if dataValue.Kind() == reflect.Ptr {
+			docID = dataValue.Elem().FieldByName("ID").String()
+		} else {
+			docID = dataValue.FieldByName("ID").String()
+		}
+
+		if docID == "" {
+			log.Fatalf("Failed to get ID from the struct")
+			return
+		}
+		_, err := client.Collection(collectionName).Doc(docID).Set(ctx, data)
+		if err != nil {
+			log.Fatalf("Failed adding data with ID %s to collection %s: %v", docID, collectionName, err)
+		}
+	}
+}
+
 func setupEmulator(ctx context.Context, client *firestore.Client) {
-	video := factories.NewVideo("videoID1")
-	_, err := client.Collection("songs").Doc(video.ID).Set(ctx, video)
-	if err != nil {
-		log.Fatalf("Failed adding video: %v", err)
+	// Mock video data
+	videos := []interface{}{
+		factories.NewVideo("videoID1"),
+		factories.NewVideo("videoID2"),
+		// ... additional mock videos
 	}
 
-	clip := factories.NewClip("clipID1")
-	_, err = client.Collection("clips").Doc(clip.ID).Set(ctx, clip)
-	if err != nil {
-		log.Fatalf("Failed adding clip: %v", err)
+	// Mock clip data
+	clips := []interface{}{
+		factories.NewClip("clipID1"),
+		factories.NewClip("clipID2"),
+		// ... additional mock clips
 	}
 
-	channel := factories.NewChannel("channelID1")
-	_, err = client.Collection("channels").Doc(channel.ID).Set(ctx, channel)
-	if err != nil {
-		log.Fatalf("Failed adding channel: %v", err)
+	// Mock channel data
+	channels := []interface{}{
+		factories.NewChannel("channelID1"),
+		factories.NewChannel("channelID2"),
+		// ... additional mock channels
 	}
+
+	// Mock liveStream data
+	liveStreams := []interface{}{
+		factories.NewLiveStream("liveStreamID1"),
+		factories.NewLiveStream("liveStreamID2"),
+		// ... additional mock liveStreams
+	}
+
+	addMockDataToFirestore(ctx, client, "songs", videos)
+	addMockDataToFirestore(ctx, client, "clips", clips)
+	addMockDataToFirestore(ctx, client, "channels", channels)
+	addMockDataToFirestore(ctx, client, "livestreams", liveStreams)
 }
 
 func Config() (client *firestore.Client, err error) {

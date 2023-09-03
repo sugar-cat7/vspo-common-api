@@ -2,6 +2,7 @@ package util
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
 	"google.golang.org/api/youtube/v3"
@@ -71,4 +72,14 @@ func GetVideoIDs(videos []*entities.Video) []string {
 		ids[i] = video.ID
 	}
 	return ids
+}
+
+func FormatTwitchThumbnailURL(url string) string {
+	// それぞれの置換ルールを実装
+	url = strings.Replace(url, "%{width}", "400", -1)
+	url = strings.Replace(url, "%{height}", "220", -1)
+	url = strings.Replace(url, "-{width}x{height}", "-400x220", -1)
+	url = strings.Replace(url, "http://", "https://", -1)
+
+	return url
 }

@@ -7,14 +7,19 @@
 package di
 
 import (
+	ports2 "github.com/sugar-cat7/vspo-common-api/infrastructure/api/discord"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/api/youtube"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/firestore"
 	handlers2 "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/channel"
 	handlers3 "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/clip"
 	handlers4 "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/cron"
+	handlers6 "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/discord"
+	handlers5 "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/livestream"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/song"
 	usecases2 "github.com/sugar-cat7/vspo-common-api/usecases/channel"
 	usecases3 "github.com/sugar-cat7/vspo-common-api/usecases/clip"
+	usecases5 "github.com/sugar-cat7/vspo-common-api/usecases/discord"
+	usecases4 "github.com/sugar-cat7/vspo-common-api/usecases/livestream"
 	"github.com/sugar-cat7/vspo-common-api/usecases/song"
 )
 
@@ -55,7 +60,17 @@ func InitializeApplication() (*Application, func(), error) {
 	updateClipsByPeriod := usecases3.NewUpdateClipsByPeriod(repositoriesClipRepository, youTubeService)
 	updateClipsHandler := handlers3.NewUpdateClipsHandler(updateClipsByPeriod)
 	cronHandler := handlers4.NewCronHandler(updateClipsByPeriod, updateSongs)
-	application := NewApplication(getAllSongsHandler, createSongHandler, updateSongsHandler, addNewSongHandler, getChannelsHandler, createChannelHandler, updateChannelsFromYoutubeHandler, getClipsByPeriodHandler, updateClipsHandler, cronHandler)
+	liveStreamRepository := firestore.NewLiveStreamRepository(firestoreClient)
+	repositoriesLiveStreamRepository := firestore.ProvideLiveStreamRepository(firestoreClient, liveStreamRepository)
+	getLiveStreamsByPeriod := usecases4.NewGetLiveStreamsByPeriod(repositoriesLiveStreamRepository)
+	getLiveStreamsByPeriodHandler := handlers5.NewGetLiveStreamsByPeriodHandler(getLiveStreamsByPeriod)
+	discordService, err := ports2.NewDiscordService()
+	if err != nil {
+		return nil, nil, err
+	}
+	discordSendMessage := usecases5.NewDiscordSendMessage(discordService, repositoriesLiveStreamRepository)
+	discordSendMessageHandler := handlers6.NewDiscordSendMessageHandler(discordSendMessage)
+	application := NewApplication(getAllSongsHandler, createSongHandler, updateSongsHandler, addNewSongHandler, getChannelsHandler, createChannelHandler, updateChannelsFromYoutubeHandler, getClipsByPeriodHandler, updateClipsHandler, cronHandler, getLiveStreamsByPeriodHandler, discordSendMessageHandler)
 	return application, func() {
 	}, nil
 }
@@ -74,6 +89,8 @@ type Application struct {
 	GetClipsByPeriodHandler          *handlers3.GetClipsByPeriodHandler
 	UpdateClipsHandler               *handlers3.UpdateClipsHandler
 	CronHandler                      *handlers4.CronHandler
+	GetLiveStreamsByPeriodHandler    *handlers5.GetLiveStreamsByPeriodHandler
+	DiscordSendMessageHandler        *handlers6.DiscordSendMessageHandler
 }
 
 // NewApplication creates a new Application.
@@ -81,6 +98,8 @@ func NewApplication(getAllSongsHandler *handlers.GetAllSongsHandler, createSongH
 	getChannelsHandler *handlers2.GetChannelsHandler, createChannelHandler *handlers2.CreateChannelHandler, updateChannelsFromYoutubeHandler *handlers2.UpdateChannelsFromYoutubeHandler,
 	getClipsByPeriodHandler *handlers3.GetClipsByPeriodHandler, updateClipsHandler *handlers3.UpdateClipsHandler,
 	cronHandler *handlers4.CronHandler,
+	getLiveStreamsByPeriodHandler *handlers5.GetLiveStreamsByPeriodHandler,
+	discordGetLiveStreamsHandler *handlers6.DiscordSendMessageHandler,
 ) *Application {
 	return &Application{
 		GetAllSongsHandler:               getAllSongsHandler,
@@ -93,5 +112,7 @@ func NewApplication(getAllSongsHandler *handlers.GetAllSongsHandler, createSongH
 		GetClipsByPeriodHandler:          getClipsByPeriodHandler,
 		UpdateClipsHandler:               updateClipsHandler,
 		CronHandler:                      cronHandler,
+		GetLiveStreamsByPeriodHandler:    getLiveStreamsByPeriodHandler,
+		DiscordSendMessageHandler:        discordGetLiveStreamsHandler,
 	}
 }
