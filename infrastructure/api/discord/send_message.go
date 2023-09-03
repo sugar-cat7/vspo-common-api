@@ -184,9 +184,9 @@ func buildEmbeds(liveStreams []*entities.Video, countryCode string) ([]*discordg
 			},
 		}
 		embeds = append(embeds, embed)
-		if video.GetLiveStatus() == entities.LiveStatusLive {
-			isExistVideoMap[video.Link] = true
-		}
+
+		isExistVideoMap[video.Link] = true
+
 	}
 
 	return embeds, isExistVideoMap
