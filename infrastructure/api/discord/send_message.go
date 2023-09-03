@@ -14,7 +14,6 @@ type discordServiceImpl struct {
 	Session *discordgo.Session
 }
 
-// NewDiscordService creates a new DiscordService.
 func NewDiscordService() (ports.DiscordService, error) {
 	botToken, ok := os.LookupEnv("DISCORD_BOT_TOKEN")
 	if !ok {
@@ -38,101 +37,98 @@ func (s *discordServiceImpl) SendMessages(liveStreams []*entities.Video, country
 	// 所属する全てのサーバー（ギルド）の取得
 	guilds, err := s.Session.UserGuilds(100, "", "")
 	if err != nil {
-		fmt.Println("error getting user guilds,", err)
 		return fmt.Errorf("error getting user guilds: %v", err)
 	}
 
-	// チャンネルの名前を定義
-	targetChannelName := "ぶいすぽ配信情報"
+	for _, guild := range guilds {
+		if err := s.processGuild(guild, liveStreams, botUser, countryCode); err != nil {
+			fmt.Printf("error processing guild %s: %v\n", guild.Name, err)
+			continue
+		}
+	}
+	return nil
+}
 
-	// 初回メッセージの内容
+func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStreams []*entities.Video, botUser *discordgo.User, countryCode string) error {
+	targetChannelName := "ぶいすぽ配信情報"
 	initialMessage := "すぽじゅーるは、ぶいすぽっ!メンバーの配信(Youtube/Twitch/ツイキャス/ニコニコ)や切り抜きを一覧で確認できる非公式サイトです。 /Spodule aggregates schedules for Japan's Vtuber group, Vspo.\n\nWeb版はこちら：https://www.vspo-schedule.com/schedule/all"
 
-	// 各サーバーの特定のチャンネルにメッセージを送信
-	for _, guild := range guilds {
-		channels, err := s.Session.GuildChannels(guild.ID)
+	channels, err := s.Session.GuildChannels(guild.ID)
+	if err != nil {
+		return fmt.Errorf("error getting guild channels: %v", err)
+	}
+
+	var targetChannel *discordgo.Channel
+	for _, channel := range channels {
+		if channel.Name == targetChannelName {
+			targetChannel = channel
+			break
+		}
+	}
+
+	if targetChannel == nil {
+		targetChannel, err = s.Session.GuildChannelCreate(guild.ID, targetChannelName, discordgo.ChannelTypeGuildText)
 		if err != nil {
-			fmt.Println("error getting guild channels,", err)
-			continue
+			return fmt.Errorf("error creating channel %s: %v", targetChannelName, err)
 		}
-
-		var targetChannel *discordgo.Channel
-		for _, channel := range channels {
-			if channel.Name == targetChannelName {
-				targetChannel = channel
-				break
-			}
-		}
-
-		if targetChannel == nil {
-			targetChannel, err = s.Session.GuildChannelCreate(guild.ID, targetChannelName, discordgo.ChannelTypeGuildText)
-			if err != nil {
-				fmt.Printf("error creating channel %s: %v\n", targetChannelName, err)
-				continue
-			}
-			_, err = s.Session.ChannelMessageSend(targetChannel.ID, initialMessage)
-			if err != nil {
-				fmt.Printf("error sending initial message to channel %s: %v\n", targetChannel.Name, err)
-			}
-		}
-
-		var embeds []*discordgo.MessageEmbed
-		for _, video := range liveStreams {
-			formattedTime, err := util.FormatTimeForCountry(video.ScheduledStartTime, countryCode)
-			if err != nil {
-				continue
-			}
-			embed := &discordgo.MessageEmbed{
-				Title: video.Title,
-				URL:   video.Link,
-				Color: video.GetStatusColor(),
-				Fields: []*discordgo.MessageEmbedField{
-					{
-						Name:   "配信日時",
-						Value:  formattedTime,
-						Inline: true,
-					},
-				},
-				Image: &discordgo.MessageEmbedImage{
-					URL: video.Thumbnails.Default.URL,
-				},
-				Author: &discordgo.MessageEmbedAuthor{
-					Name:    video.ChannelTitle,
-					IconURL: video.ChannelIcon,
-				},
-				Footer: &discordgo.MessageEmbedFooter{
-					Text:    video.Platform.Upper() + " " + " Powered by すぽじゅーる",
-					IconURL: video.Platform.GetPlatformIconURL(),
-				},
-			}
-			embeds = append(embeds, embed)
-		}
-		messages, err := s.Session.ChannelMessages(targetChannel.ID, 100, "", "", "")
+		_, err = s.Session.ChannelMessageSend(targetChannel.ID, initialMessage)
 		if err != nil {
-			fmt.Printf("error getting messages from channel %s: %v\n", targetChannel.Name, err)
-			continue
+			return fmt.Errorf("error sending initial message to channel %s: %v", targetChannel.Name, err)
 		}
+	}
 
-		for _, message := range messages {
-			if message.Author.ID == botUser.ID && message.Content != initialMessage {
-				err = s.Session.ChannelMessageDelete(targetChannel.ID, message.ID)
-				if err != nil {
-					fmt.Printf("error deleting message in channel %s: %v\n", targetChannel.Name, err)
+	embeds, isExistVideoMap := buildEmbeds(liveStreams, countryCode)
+	messages, err := s.Session.ChannelMessages(targetChannel.ID, 100, "", "", "")
+	if err != nil {
+		return fmt.Errorf("error getting messages from channel %s: %v", targetChannel.Name, err)
+	}
+
+	var isExistChannelVideoMap = make(map[string]bool)
+	// Process the messages for the given channel.
+	for _, message := range messages {
+		if message.Author.ID == botUser.ID && message.Content != initialMessage {
+			for _, embed := range message.Embeds {
+				isExistChannelVideoMap[embed.URL] = true
+				if embed.URL != "" && !isExistVideoMap[embed.URL] {
+					err = s.Session.ChannelMessageDelete(targetChannel.ID, message.ID)
+					if err != nil {
+						return fmt.Errorf("error deleting message in channel %s: %v", targetChannel.Name, err)
+					}
+				} else {
+					for _, newEmbed := range embeds {
+						if embed.URL == newEmbed.URL {
+							if embed.Title != newEmbed.Title || embed.Fields[0].Value != newEmbed.Fields[0].Value {
+								_, err := s.Session.ChannelMessageEditComplex(&discordgo.MessageEdit{
+									ID:      message.ID,
+									Channel: targetChannel.ID,
+									Embed:   newEmbed,
+								})
+								if err != nil {
+									return fmt.Errorf("error updating message in channel %s: %v", targetChannel.Name, err)
+								}
+							}
+							break
+						}
+					}
 				}
 			}
 		}
+	}
 
-		var currentEmbeds []*discordgo.MessageEmbed
-		currentSize := 0
-		const maxEmbedSize = 6000
-		for _, embed := range embeds {
+	var currentEmbeds []*discordgo.MessageEmbed
+	currentSize := 0
+	const maxEmbedSize = 6000
+
+	// Split the embeds to ensure they fit within Discord's message limits.
+	for _, embed := range embeds {
+		if !isExistChannelVideoMap[embed.URL] {
 			embedSize := util.CalculateEmbedSize(embed)
 			if currentSize+embedSize > maxEmbedSize || len(currentEmbeds) == 10 {
 				_, err = s.Session.ChannelMessageSendComplex(targetChannel.ID, &discordgo.MessageSend{
 					Embeds: currentEmbeds,
 				})
 				if err != nil {
-					fmt.Printf("error sending embed message to channel %s: %v\n", targetChannel.Name, err)
+					return fmt.Errorf("error sending embed message to channel %s: %v", targetChannel.Name, err)
 				}
 				currentEmbeds = []*discordgo.MessageEmbed{}
 				currentSize = 0
@@ -140,16 +136,79 @@ func (s *discordServiceImpl) SendMessages(liveStreams []*entities.Video, country
 			currentEmbeds = append(currentEmbeds, embed)
 			currentSize += embedSize
 		}
+	}
 
-		if len(currentEmbeds) > 0 {
-			_, err = s.Session.ChannelMessageSendComplex(targetChannel.ID, &discordgo.MessageSend{
-				Embeds: currentEmbeds,
-			})
-			if err != nil {
-				fmt.Printf("error sending embed message to channel %s: %v\n", targetChannel.Name, err)
-			}
+	// Ensure any remaining embeds are also sent.
+	if len(currentEmbeds) > 0 {
+		_, err = s.Session.ChannelMessageSendComplex(targetChannel.ID, &discordgo.MessageSend{
+			Embeds: currentEmbeds,
+		})
+		if err != nil {
+			return fmt.Errorf("error sending embed message to channel %s: %v", targetChannel.Name, err)
 		}
+	}
 
+	return nil
+}
+
+func (s *discordServiceImpl) createAndSendInitialMessage(guild *discordgo.UserGuild, targetChannelName, initialMessage string) (*discordgo.Channel, error) {
+	channel, err := s.Session.GuildChannelCreate(guild.ID, targetChannelName, discordgo.ChannelTypeGuildText)
+	if err != nil {
+		return nil, fmt.Errorf("error creating channel %s: %v", targetChannelName, err)
+	}
+	_, err = s.Session.ChannelMessageSend(channel.ID, initialMessage)
+	if err != nil {
+		return nil, fmt.Errorf("error sending initial message to channel %s: %v", channel.Name, err)
+	}
+	return channel, nil
+}
+
+func getTargetChannel(channels []*discordgo.Channel, targetChannelName string) *discordgo.Channel {
+	for _, channel := range channels {
+		if channel.Name == targetChannelName {
+			return channel
+		}
 	}
 	return nil
+}
+
+func buildEmbeds(liveStreams []*entities.Video, countryCode string) ([]*discordgo.MessageEmbed, map[string]bool) {
+	var embeds []*discordgo.MessageEmbed
+	isExistVideoMap := make(map[string]bool)
+
+	for _, video := range liveStreams {
+		formattedTime, err := util.FormatTimeForCountry(video.ScheduledStartTime, countryCode)
+		if err != nil {
+			continue
+		}
+		embed := &discordgo.MessageEmbed{
+			Title: video.Title,
+			URL:   video.Link,
+			Color: video.GetStatusColor(),
+			Fields: []*discordgo.MessageEmbedField{
+				{
+					Name:   "配信日時",
+					Value:  formattedTime,
+					Inline: true,
+				},
+			},
+			Image: &discordgo.MessageEmbedImage{
+				URL: video.Thumbnails.Default.URL,
+			},
+			Author: &discordgo.MessageEmbedAuthor{
+				Name:    video.ChannelTitle,
+				IconURL: video.ChannelIcon,
+			},
+			Footer: &discordgo.MessageEmbedFooter{
+				Text:    video.Platform.Upper() + " " + " Powered by すぽじゅーる",
+				IconURL: video.Platform.GetPlatformIconURL(),
+			},
+		}
+		embeds = append(embeds, embed)
+		if video.GetLiveStatus() == entities.LiveStatusLive {
+			isExistVideoMap[video.Link] = true
+		}
+	}
+
+	return embeds, isExistVideoMap
 }
