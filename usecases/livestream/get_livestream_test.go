@@ -13,11 +13,11 @@ import (
 	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
 )
 
-func TestGetClipsByPeriod_Execute(t *testing.T) {
+func TestGetLiveStreamsByPeriod_Execute(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	testVideo, _ := mappers.ClipMap(factories.NewClip("testID"))
+	testVideo, _ := mappers.LiveStreamMap(factories.NewLiveStream("testID"))
 
 	tests := []struct {
 		name    string
@@ -38,19 +38,19 @@ func TestGetClipsByPeriod_Execute(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockClipRepository := mock_repo.NewMockClipRepository(ctrl)
+			mockLiveStreamRepository := mock_repo.NewMockLiveStreamRepository(ctrl)
 
 			start, end := "2022-01-01", "2022-01-31"
 
 			if tt.wantErr {
-				mockClipRepository.EXPECT().FindAllByPeriod(start, end).Return(nil, errors.New("some error"))
+				mockLiveStreamRepository.EXPECT().FindAllByPeriod(start, end).Return(nil, errors.New("some error"))
 			} else {
-				mockClipRepository.EXPECT().FindAllByPeriod(start, end).Return(
-					[]*entities2.OldVideo{factories.NewClip("testID")}, nil)
+				mockLiveStreamRepository.EXPECT().FindAllByPeriod(start, end).Return(
+					[]*entities2.OldVideo{factories.NewLiveStream("testID")}, nil)
 
 			}
 
-			g := NewGetClipsByPeriod(mockClipRepository)
+			g := NewGetLiveStreamsByPeriod(mockLiveStreamRepository)
 
 			got, err := g.Execute(start, end)
 

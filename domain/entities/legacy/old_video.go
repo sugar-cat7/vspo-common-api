@@ -7,7 +7,8 @@ import (
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
 )
 
-type Clip struct {
+// FIXME: OldVideo is a legacy entity.
+type OldVideo struct {
 	ID           string            `firestore:"id"`
 	Title        string            `firestore:"title"`
 	Description  string            `firestore:"description"`
@@ -18,13 +19,17 @@ type Clip struct {
 	Platform     entities.Platform `firestore:"platform"`
 	ViewCount    string            `firestore:"viewCount"`
 	// LikeCount    string            `firestore:"likeCount"`
-	CommentCount string         `firestore:"commentCount"`
-	NewViewCount entities.Views `firestore:"newViewCount"`
-	CreatedAt    time.Time      `firestore:"createdAt"`
+	CommentCount       string         `firestore:"commentCount"`
+	NewViewCount       entities.Views `firestore:"newViewCount"`
+	CreatedAt          time.Time      `firestore:"createdAt"`
+	ScheduledStartTime time.Time      `firestore:"scheduledStartTime"`
+	ActualEndTime      time.Time      `firestore:"actualEndTime"`
+	TwitchName         string         `firestore:"twitchName"`
+	TwitchPastVideoId  string         `firestore:"twitchPastVideoId"`
 }
 
-// GetUpdate returns the update of the Clip.
-func (s Clip) GetUpdate() []firestore.Update {
+// GetUpdate returns the update of the OldVideo.
+func (s OldVideo) GetUpdate() []firestore.Update {
 	return []firestore.Update{
 		{Path: "title", Value: s.Title},
 		{Path: "description", Value: s.Description},

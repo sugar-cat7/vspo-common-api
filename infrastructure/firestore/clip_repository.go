@@ -22,7 +22,7 @@ func NewClipRepository(client repositories.FirestoreClient) *ClipRepository {
 	}
 }
 
-func (r *ClipRepository) FindAllByPeriod(start, end string) ([]*entities.Clip, error) {
+func (r *ClipRepository) FindAllByPeriod(start, end string) ([]*entities.OldVideo, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -50,9 +50,9 @@ func (r *ClipRepository) FindAllByPeriod(start, end string) ([]*entities.Clip, e
 		return nil, fmt.Errorf("failed to get documents from Firestore: %w", err)
 	}
 
-	var clips []*entities.Clip
+	var clips []*entities.OldVideo
 	for _, doc := range docs {
-		var clip entities.Clip
+		var clip entities.OldVideo
 		err = doc.DataTo(&clip)
 		if err != nil {
 			return nil, fmt.Errorf("failed to map document data to the provided struct: %w", err)
@@ -63,7 +63,7 @@ func (r *ClipRepository) FindAllByPeriod(start, end string) ([]*entities.Clip, e
 	return clips, nil
 }
 
-func (r *ClipRepository) UpdateInBatch(clips []*entities.Clip) error {
+func (r *ClipRepository) UpdateInBatch(clips []*entities.OldVideo) error {
 	clipChunks, err := util.Chunk(clips, maxBatchSize)
 	if err != nil {
 		return fmt.Errorf("failed to chunk clips: %w", err)
@@ -88,7 +88,7 @@ func (r *ClipRepository) UpdateInBatch(clips []*entities.Clip) error {
 	return nil
 }
 
-func (r *ClipRepository) CreateInBatch(clips []*entities.Clip) error {
+func (r *ClipRepository) CreateInBatch(clips []*entities.OldVideo) error {
 	clipChunks, err := util.Chunk(clips, maxBatchSize)
 	if err != nil {
 		return fmt.Errorf("failed to chunk clips: %w", err)

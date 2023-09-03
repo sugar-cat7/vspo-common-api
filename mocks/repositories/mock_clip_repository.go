@@ -35,7 +35,7 @@ func (m *MockClipRepository) EXPECT() *MockClipRepositoryMockRecorder {
 }
 
 // CreateInBatch mocks base method.
-func (m *MockClipRepository) CreateInBatch(arg0 []*entities.Clip) error {
+func (m *MockClipRepository) CreateInBatch(arg0 []*entities.OldVideo) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateInBatch", arg0)
 	ret0, _ := ret[0].(error)
@@ -49,10 +49,10 @@ func (mr *MockClipRepositoryMockRecorder) CreateInBatch(arg0 interface{}) *gomoc
 }
 
 // FindAllByPeriod mocks base method.
-func (m *MockClipRepository) FindAllByPeriod(arg0, arg1 string) ([]*entities.Clip, error) {
+func (m *MockClipRepository) FindAllByPeriod(arg0, arg1 string) ([]*entities.OldVideo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindAllByPeriod", arg0, arg1)
-	ret0, _ := ret[0].([]*entities.Clip)
+	ret0, _ := ret[0].([]*entities.OldVideo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -64,7 +64,7 @@ func (mr *MockClipRepositoryMockRecorder) FindAllByPeriod(arg0, arg1 interface{}
 }
 
 // UpdateInBatch mocks base method.
-func (m *MockClipRepository) UpdateInBatch(arg0 []*entities.Clip) error {
+func (m *MockClipRepository) UpdateInBatch(arg0 []*entities.OldVideo) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateInBatch", arg0)
 	ret0, _ := ret[0].(error)

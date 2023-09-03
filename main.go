@@ -29,6 +29,8 @@ func main() {
 	apiRouter.HandleFunc("/songs", app.GetAllSongsHandler.Handle).Methods("GET")
 	apiRouter.HandleFunc("/clips", app.GetClipsByPeriodHandler.Handle).Methods("GET")
 	apiRouter.HandleFunc("/channels", app.GetChannelsHandler.Handle).Methods("GET")
+	apiRouter.HandleFunc("/livestreams", app.GetLiveStreamsByPeriodHandler.Handle).Methods("GET")
+	apiRouter.HandleFunc("/discord-livestreams", app.DiscordSendMessageHandler.Handle).Methods("GET")
 
 	srv := &http.Server{
 		Handler:      r,
