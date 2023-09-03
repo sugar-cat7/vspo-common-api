@@ -151,27 +151,6 @@ func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStream
 	return nil
 }
 
-func (s *discordServiceImpl) createAndSendInitialMessage(guild *discordgo.UserGuild, targetChannelName, initialMessage string) (*discordgo.Channel, error) {
-	channel, err := s.Session.GuildChannelCreate(guild.ID, targetChannelName, discordgo.ChannelTypeGuildText)
-	if err != nil {
-		return nil, fmt.Errorf("error creating channel %s: %v", targetChannelName, err)
-	}
-	_, err = s.Session.ChannelMessageSend(channel.ID, initialMessage)
-	if err != nil {
-		return nil, fmt.Errorf("error sending initial message to channel %s: %v", channel.Name, err)
-	}
-	return channel, nil
-}
-
-func getTargetChannel(channels []*discordgo.Channel, targetChannelName string) *discordgo.Channel {
-	for _, channel := range channels {
-		if channel.Name == targetChannelName {
-			return channel
-		}
-	}
-	return nil
-}
-
 func buildEmbeds(liveStreams []*entities.Video, countryCode string) ([]*discordgo.MessageEmbed, map[string]bool) {
 	var embeds []*discordgo.MessageEmbed
 	isExistVideoMap := make(map[string]bool)
