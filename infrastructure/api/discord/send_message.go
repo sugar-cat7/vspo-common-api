@@ -3,6 +3,8 @@ package ports
 import (
 	"fmt"
 	"os"
+	"strings"
+	"sync"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
@@ -40,12 +42,34 @@ func (s *discordServiceImpl) SendMessages(liveStreams []*entities.Video, country
 		return fmt.Errorf("error getting user guilds: %v", err)
 	}
 
+	var wg sync.WaitGroup
+	errCh := make(chan error, len(guilds))
+
 	for _, guild := range guilds {
-		if err := s.processGuild(guild, liveStreams, botUser, countryCode); err != nil {
-			fmt.Printf("error processing guild %s: %v\n", guild.Name, err)
-			continue
-		}
+		wg.Add(1)
+		go func(guild *discordgo.UserGuild) {
+			defer wg.Done()
+			if err := s.processGuild(guild, liveStreams, botUser, countryCode); err != nil {
+				errCh <- fmt.Errorf("error processing guild %s: %v", guild.Name, err)
+			}
+		}(guild)
 	}
+
+	// Wait for all goroutines to finish
+	wg.Wait()
+
+	close(errCh)
+
+	// Collect all errors, if any
+	var errs []string
+	for err := range errCh {
+		errs = append(errs, err.Error())
+	}
+
+	if len(errs) > 0 {
+		return fmt.Errorf("errors processing guilds: %s", strings.Join(errs, "; "))
+	}
+
 	return nil
 }
 
