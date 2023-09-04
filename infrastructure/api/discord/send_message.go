@@ -71,10 +71,6 @@ func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStream
 		if err != nil {
 			return fmt.Errorf("error creating channel %s: %v", targetChannelName, err)
 		}
-		_, err = s.Session.ChannelMessageSend(targetChannel.ID, initialMessage)
-		if err != nil {
-			return fmt.Errorf("error sending initial message to channel %s: %v", targetChannel.Name, err)
-		}
 	}
 	// 新しいライブストリームの一覧を元に埋め込みメッセージを作成
 	newEmbeds, newEmbedMap := buildEmbeds(liveStreams, countryCode)
@@ -85,6 +81,14 @@ func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStream
 		return fmt.Errorf("error getting messages from channel %s: %v", targetChannel.Name, err)
 	}
 
+	// ターゲットチャンネルにメッセージが一件も投稿されていない場合、initmessageを投稿します。
+	if len(existingMessages) == 0 {
+		_, err = s.Session.ChannelMessageSend(targetChannel.ID, initialMessage)
+		if err != nil {
+			return fmt.Errorf("error sending initial message to channel %s: %v", targetChannel.Name, err)
+		}
+	}
+
 	existingEmbeds := make(map[string]*discordgo.MessageEmbed)
 	for _, msg := range existingMessages {
 		for _, embed := range msg.Embeds {
@@ -93,8 +97,22 @@ func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStream
 	}
 
 	for _, newEmbed := range newEmbeds {
-		if _, exists := existingEmbeds[newEmbed.URL]; !exists {
-			// 新しいライブストリームの一覧の中で、既存のメッセージにないものがあれば、それを追加
+		oldEmbed, exists := existingEmbeds[newEmbed.URL]
+		if exists {
+			// Check if there is any change, for simplicity, we will check formattedTime and Image only
+			// You can add more fields as needed.
+			if oldEmbed.Fields[0].Value != newEmbed.Fields[0].Value || oldEmbed.Image.URL != newEmbed.Image.URL {
+				_, err := s.Session.ChannelMessageEditComplex(&discordgo.MessageEdit{
+					ID:      oldEmbed.URL,
+					Channel: targetChannel.ID,
+					Embed:   newEmbed,
+				})
+				if err != nil {
+					return fmt.Errorf("error updating embed message in channel %s: %v", targetChannel.Name, err)
+				}
+			}
+		} else {
+			// If not exists, send the new embed message
 			_, err := s.Session.ChannelMessageSendComplex(targetChannel.ID, &discordgo.MessageSend{
 				Embed: newEmbed,
 			})
@@ -106,7 +124,7 @@ func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStream
 
 	for _, msg := range existingMessages {
 		if msg.Content == initialMessage {
-			continue // initmessage はスキップします。
+			continue
 		}
 		for _, embed := range msg.Embeds {
 			if _, exists := newEmbedMap[embed.URL]; !exists {
