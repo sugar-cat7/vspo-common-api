@@ -76,75 +76,46 @@ func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStream
 			return fmt.Errorf("error sending initial message to channel %s: %v", targetChannel.Name, err)
 		}
 	}
+	// 新しいライブストリームの一覧を元に埋め込みメッセージを作成
+	newEmbeds, newEmbedMap := buildEmbeds(liveStreams, countryCode)
 
-	embeds, isExistVideoMap := buildEmbeds(liveStreams, countryCode)
-	messages, err := s.Session.ChannelMessages(targetChannel.ID, 100, "", "", "")
+	// 既存のメッセージの取得
+	existingMessages, err := s.Session.ChannelMessages(targetChannel.ID, 100, "", "", "")
 	if err != nil {
 		return fmt.Errorf("error getting messages from channel %s: %v", targetChannel.Name, err)
 	}
 
-	var isExistChannelVideoMap = make(map[string]bool)
-	// Process the messages for the given channel.
-	for _, message := range messages {
-		if message.Author.ID == botUser.ID && message.Content != initialMessage {
-			for _, embed := range message.Embeds {
-				isExistChannelVideoMap[embed.URL] = true
-				if embed.URL != "" && !isExistVideoMap[embed.URL] {
-					err = s.Session.ChannelMessageDelete(targetChannel.ID, message.ID)
-					if err != nil {
-						return fmt.Errorf("error deleting message in channel %s: %v", targetChannel.Name, err)
-					}
-				} else {
-					for _, newEmbed := range embeds {
-						if embed.URL == newEmbed.URL {
-							if embed.Title != newEmbed.Title || embed.Fields[0].Value != newEmbed.Fields[0].Value {
-								_, err := s.Session.ChannelMessageEditComplex(&discordgo.MessageEdit{
-									ID:      message.ID,
-									Channel: targetChannel.ID,
-									Embed:   newEmbed,
-								})
-								if err != nil {
-									return fmt.Errorf("error updating message in channel %s: %v", targetChannel.Name, err)
-								}
-							}
-							break
-						}
-					}
-				}
+	existingEmbeds := make(map[string]*discordgo.MessageEmbed)
+	for _, msg := range existingMessages {
+		for _, embed := range msg.Embeds {
+			existingEmbeds[embed.URL] = embed
+		}
+	}
+
+	for _, newEmbed := range newEmbeds {
+		if _, exists := existingEmbeds[newEmbed.URL]; !exists {
+			// 新しいライブストリームの一覧の中で、既存のメッセージにないものがあれば、それを追加
+			_, err := s.Session.ChannelMessageSendComplex(targetChannel.ID, &discordgo.MessageSend{
+				Embed: newEmbed,
+			})
+			if err != nil {
+				return fmt.Errorf("error sending embed message to channel %s: %v", targetChannel.Name, err)
 			}
 		}
 	}
 
-	var currentEmbeds []*discordgo.MessageEmbed
-	currentSize := 0
-	const maxEmbedSize = 6000
-
-	// Split the embeds to ensure they fit within Discord's message limits.
-	for _, embed := range embeds {
-		if !isExistChannelVideoMap[embed.URL] {
-			embedSize := util.CalculateEmbedSize(embed)
-			if currentSize+embedSize > maxEmbedSize || len(currentEmbeds) == 10 {
-				_, err = s.Session.ChannelMessageSendComplex(targetChannel.ID, &discordgo.MessageSend{
-					Embeds: currentEmbeds,
-				})
+	for _, msg := range existingMessages {
+		if msg.Content == initialMessage {
+			continue // initmessage はスキップします。
+		}
+		for _, embed := range msg.Embeds {
+			if _, exists := newEmbedMap[embed.URL]; !exists {
+				// 既存のメッセージの中で新しいライブストリームの一覧にないものがあれば、それを削除
+				err := s.Session.ChannelMessageDelete(targetChannel.ID, msg.ID)
 				if err != nil {
-					return fmt.Errorf("error sending embed message to channel %s: %v", targetChannel.Name, err)
+					return fmt.Errorf("error deleting message in channel %s: %v", targetChannel.Name, err)
 				}
-				currentEmbeds = []*discordgo.MessageEmbed{}
-				currentSize = 0
 			}
-			currentEmbeds = append(currentEmbeds, embed)
-			currentSize += embedSize
-		}
-	}
-
-	// Ensure any remaining embeds are also sent.
-	if len(currentEmbeds) > 0 {
-		_, err = s.Session.ChannelMessageSendComplex(targetChannel.ID, &discordgo.MessageSend{
-			Embeds: currentEmbeds,
-		})
-		if err != nil {
-			return fmt.Errorf("error sending embed message to channel %s: %v", targetChannel.Name, err)
 		}
 	}
 
