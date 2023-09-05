@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/google/martian/v3/log"
+	"github.com/sugar-cat7/vspo-common-api/domain/entities"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/http/mappers"
 	usecases "github.com/sugar-cat7/vspo-common-api/usecases/discord"
 )
@@ -32,6 +32,8 @@ func (h *DiscordSendMessageHandler) Handle(w http.ResponseWriter, r *http.Reques
 	liveStreams, err := h.discordSendMessage.Execute(start, end, countryCode)
 
 	if err != nil {
+		s := entities.NewSlackNotifier()
+		s.SendMessage(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -39,7 +41,6 @@ func (h *DiscordSendMessageHandler) Handle(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(mappers.MapVideosToResponse(liveStreams))
 	if err != nil {
-		log.Infof(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
