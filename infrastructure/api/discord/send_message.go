@@ -126,13 +126,17 @@ func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStream
 			// Check if there is any change, for simplicity, we will check formattedTime and Image only
 			// You can add more fields as needed.
 			if oldEmbed.Fields[0].Value != newEmbed.Fields[0].Value || oldEmbed.Image.URL != newEmbed.Image.URL {
-				_, err := s.Session.ChannelMessageEditComplex(&discordgo.MessageEdit{
-					ID:      oldEmbed.URL,
-					Channel: targetChannel.ID,
-					Embed:   newEmbed,
-				})
-				if err != nil {
-					return fmt.Errorf("error updating embed message in channel %s: %v", targetChannel.Name, err)
+				_, err := s.Session.ChannelMessage(targetChannel.ID, oldEmbed.URL)
+				if err == nil {
+					_, err := s.Session.ChannelMessageEditComplex(&discordgo.MessageEdit{
+						ID:      oldEmbed.URL,
+						Channel: targetChannel.ID,
+						Embed:   newEmbed,
+					})
+
+					if err != nil {
+						return fmt.Errorf("error updating embed message in channel %s: %v", targetChannel.Name, err)
+					}
 				}
 			}
 		} else {
@@ -152,10 +156,13 @@ func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStream
 		}
 		for _, embed := range msg.Embeds {
 			if _, exists := newEmbedMap[embed.URL]; !exists {
-				// 既存のメッセージの中で新しいライブストリームの一覧にないものがあれば、それを削除
-				err := s.Session.ChannelMessageDelete(targetChannel.ID, msg.ID)
-				if err != nil {
-					return fmt.Errorf("error deleting message in channel %s: %v", targetChannel.Name, err)
+				_, err := s.Session.ChannelMessage(targetChannel.ID, embed.URL)
+				if err == nil {
+					// 既存のメッセージの中で新しいライブストリームの一覧にないものがあれば、それを削除
+					err := s.Session.ChannelMessageDelete(targetChannel.ID, msg.ID)
+					if err != nil {
+						return fmt.Errorf("error deleting message in channel %s: %v", targetChannel.Name, err)
+					}
 				}
 			}
 		}
