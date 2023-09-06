@@ -81,15 +81,23 @@ func (v *Video) GetLink() string {
 	}
 }
 
+// 定数として色を定義
+const (
+	ColorUpcoming = 0x00FF00 // Green color for upcoming
+	ColorLive     = 0xFF0000 // Red color for live
+	ColorArchived = 0x0000FF // Blue color for archived
+	ColorDefault  = 0x808080 // Default grey color if none of the conditions match
+)
+
 func (v *Video) GetStatusColor() int {
 	switch v.GetLiveStatus() {
 	case LiveStatusUpcoming:
-		return 0x00FF00 // This is green color for upcoming
+		return ColorUpcoming
 	case LiveStatusLive:
-		return 0xFF0000 // This is red color for live
+		return ColorLive
 	case LiveStatusArchived:
-		return 0x0000FF // This is blue color for archived, though you mentioned you won't display it.
+		return ColorArchived
 	default:
-		return 0x808080 // This is a default grey color if none of the conditions match.
+		return ColorDefault
 	}
 }

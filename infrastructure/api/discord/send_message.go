@@ -120,26 +120,14 @@ func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStream
 		}
 	}
 
-	for _, newEmbed := range newEmbeds {
-		oldEmbed, exists := existingEmbeds[newEmbed.URL]
-		if exists {
-			// Check if there is any change, for simplicity, we will check formattedTime and Image only
-			// You can add more fields as needed.
-			if oldEmbed.Fields[0].Value != newEmbed.Fields[0].Value || oldEmbed.Image.URL != newEmbed.Image.URL || oldEmbed.Color != newEmbed.Color {
-				_, err := s.Session.ChannelMessage(targetChannel.ID, oldEmbed.URL)
-				if err == nil {
-					_, err := s.Session.ChannelMessageEditComplex(&discordgo.MessageEdit{
-						ID:      oldEmbed.URL,
-						Channel: targetChannel.ID,
-						Embed:   newEmbed,
-					})
+	newMessageEmbedMap := make(map[string]*discordgo.MessageEmbed)
+	for _, embed := range newEmbeds {
+		newMessageEmbedMap[embed.URL] = embed
+	}
 
-					if err != nil {
-						return fmt.Errorf("error updating embed message in channel %s: %v", targetChannel.Name, err)
-					}
-				}
-			}
-		} else {
+	for _, newEmbed := range newEmbeds {
+		_, exists := existingEmbeds[newEmbed.URL]
+		if !exists {
 			// If not exists, send the new embed message
 			_, err := s.Session.ChannelMessageSendComplex(targetChannel.ID, &discordgo.MessageSend{
 				Embed: newEmbed,
@@ -147,6 +135,7 @@ func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStream
 			if err != nil {
 				return fmt.Errorf("error sending embed message to channel %s: %v", targetChannel.Name, err)
 			}
+
 		}
 	}
 
@@ -164,6 +153,46 @@ func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStream
 					return fmt.Errorf("error deleting message in channel %s: %v", targetChannel.Name, err)
 				}
 				// }
+			}
+			reSendURL := make([]string, 0, len(newEmbeds))
+
+			t, err := util.ParseTimeForCountry(embed.Fields[0].Value, countryCode)
+			if err != nil {
+				return err
+			}
+			isFuture, err := util.IsFuture(t, countryCode)
+			if err != nil {
+				return err
+			}
+			// ラベルの色の修正
+			if !isFuture && embed.Color != entities.ColorLive {
+				// 過去の配信は削除
+				err := s.Session.ChannelMessageDelete(targetChannel.ID, msg.ID)
+				reSendURL = append(reSendURL, embed.URL)
+				if err != nil {
+					return fmt.Errorf("error deleting message in channel %s: %v", targetChannel.Name, err)
+				}
+			}
+			// twitchの配信が終了したら削除（配信URLが変わるため別途判定が必要?）
+			// if strings.Contains(embed.Image.URL, "static-cdn.jtvnw.net") {
+			// 	err := s.Session.ChannelMessageDelete(targetChannel.ID, msg.ID)
+			// 	if err != nil {
+			// 		return fmt.Errorf("error deleting message in channel %s: %v", targetChannel.Name, err)
+			// 	}
+			// }
+
+			if len(reSendURL) > 0 {
+				// 削除したメッセージを再送信
+				for _, url := range reSendURL {
+					if _, ok := newMessageEmbedMap[url]; !ok {
+						_, err := s.Session.ChannelMessageSendComplex(targetChannel.ID, &discordgo.MessageSend{
+							Embed: newMessageEmbedMap[url],
+						})
+						if err != nil {
+							return fmt.Errorf("error sending embed message to channel %s: %v", targetChannel.Name, err)
+						}
+					}
+				}
 			}
 		}
 	}
