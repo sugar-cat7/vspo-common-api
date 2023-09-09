@@ -26,6 +26,7 @@ type OldVideo struct {
 	ActualEndTime      time.Time      `firestore:"actualEndTime"`
 	TwitchName         string         `firestore:"twitchName"`
 	TwitchPastVideoId  string         `firestore:"twitchPastVideoId"`
+	TwitcastingLink    string         `firestore:"link"`
 }
 
 // GetUpdate returns the update of the OldVideo.

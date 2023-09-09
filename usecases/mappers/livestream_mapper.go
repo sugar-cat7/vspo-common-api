@@ -36,6 +36,9 @@ func LiveStreamMap(liveStream *entities2.OldVideo) (*entities.Video, error) {
 		v.ID = liveStream.TwitchPastVideoId
 		v.Thumbnails.Default.URL = util.FormatTwitchThumbnailURL(liveStream.ThumbnailURL)
 	}
+	if liveStream.Platform == entities.Twitcasting {
+		v.Link = liveStream.TwitcastingLink
+	}
 	v.LiveStatus = v.GetLiveStatus()
 	v.Link = v.GetLink()
 
