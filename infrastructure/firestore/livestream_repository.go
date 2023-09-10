@@ -27,27 +27,38 @@ func (r *LiveStreamRepository) FindAllByPeriod(start, end string) ([]*entities.O
 	defer cancel()
 
 	const layout = "2006-01-02"
-	if start == "" {
-		startTime := time.Now().AddDate(0, 0, -7).Format(layout) // 1週間前の日付
-		start = startTime
+	jst, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		return nil, fmt.Errorf("failed to load JST location: %w", err)
 	}
 
-	startTime, err := time.Parse(layout, start)
+	if start == "" {
+		startTimeJST := time.Now().In(jst).AddDate(0, 0, -7) // 1週間前の日付
+		start = startTimeJST.Format(layout)
+	}
+
+	startTimeJST, err := time.ParseInLocation(layout, start, jst)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse start time: %w", err)
 	}
+	startTimeUTC := startTimeJST.UTC()
 
 	if end == "" {
-		endTime := time.Now().AddDate(0, 0, 7).Format(layout) // 7日後の日付
-		end = endTime
+		endTimeJST := time.Now().In(jst).AddDate(0, 0, 7) // 7日後の日付
+		end = endTimeJST.Format(layout)
 	}
 
-	endTime, err := time.Parse(layout, end)
+	endTimeJST, err := time.ParseInLocation(layout, end, jst)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse end time: %w", err)
 	}
+	endTimeUTC := endTimeJST.UTC()
 
-	docs, err := r.client.Collection(r.collectionName).Where("scheduledStartTime", ">=", startTime).Where("scheduledStartTime", "<=", endTime).Documents(ctx).GetAll()
+	docs, err := r.client.Collection(r.collectionName).
+		Where("scheduledStartTime", ">=", startTimeUTC).
+		Where("scheduledStartTime", "<", endTimeUTC).
+		Documents(ctx).GetAll()
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to get documents from Firestore: %w", err)
 	}

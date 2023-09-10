@@ -8,6 +8,7 @@ package di
 
 import (
 	ports2 "github.com/sugar-cat7/vspo-common-api/infrastructure/api/discord"
+	ports3 "github.com/sugar-cat7/vspo-common-api/infrastructure/api/slack"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/api/youtube"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/firestore"
 	handlers2 "github.com/sugar-cat7/vspo-common-api/infrastructure/http/handlers/channel"
@@ -69,7 +70,11 @@ func InitializeApplication() (*Application, func(), error) {
 		return nil, nil, err
 	}
 	discordSendMessage := usecases5.NewDiscordSendMessage(discordService, repositoriesLiveStreamRepository)
-	discordSendMessageHandler := handlers6.NewDiscordSendMessageHandler(discordSendMessage)
+	slackService, err := ports3.NewSlackService()
+	if err != nil {
+		return nil, nil, err
+	}
+	discordSendMessageHandler := handlers6.NewDiscordSendMessageHandler(discordSendMessage, slackService)
 	application := NewApplication(getAllSongsHandler, createSongHandler, updateSongsHandler, addNewSongHandler, getChannelsHandler, createChannelHandler, updateChannelsFromYoutubeHandler, getClipsByPeriodHandler, updateClipsHandler, cronHandler, getLiveStreamsByPeriodHandler, discordSendMessageHandler)
 	return application, func() {
 	}, nil

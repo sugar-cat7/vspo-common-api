@@ -29,12 +29,12 @@ func TestGetAllSongs_Execute(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		songs   []*entities.Video
+		songs   entities.Videos
 		wantErr bool
 	}{
 		{
 			name:    "Success",
-			songs:   []*entities.Video{&testSong},
+			songs:   entities.Videos{&testSong},
 			wantErr: false,
 		},
 		{

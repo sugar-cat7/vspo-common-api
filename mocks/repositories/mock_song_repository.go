@@ -49,7 +49,7 @@ func (mr *MockSongRepositoryMockRecorder) Create(arg0 interface{}) *gomock.Call 
 }
 
 // CreateInBatch mocks base method.
-func (m *MockSongRepository) CreateInBatch(arg0 []*entities.Video) error {
+func (m *MockSongRepository) CreateInBatch(arg0 entities.Videos) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateInBatch", arg0)
 	ret0, _ := ret[0].(error)
@@ -77,10 +77,10 @@ func (mr *MockSongRepositoryMockRecorder) Delete(arg0 interface{}) *gomock.Call 
 }
 
 // GetAll mocks base method.
-func (m *MockSongRepository) GetAll() ([]*entities.Video, error) {
+func (m *MockSongRepository) GetAll() (entities.Videos, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAll")
-	ret0, _ := ret[0].([]*entities.Video)
+	ret0, _ := ret[0].(entities.Videos)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -121,7 +121,7 @@ func (mr *MockSongRepositoryMockRecorder) Update(arg0 interface{}) *gomock.Call 
 }
 
 // UpdateInBatch mocks base method.
-func (m *MockSongRepository) UpdateInBatch(arg0 []*entities.Video) error {
+func (m *MockSongRepository) UpdateInBatch(arg0 entities.Videos) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateInBatch", arg0)
 	ret0, _ := ret[0].(error)

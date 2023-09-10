@@ -21,12 +21,12 @@ func TestGetClipsByPeriod_Execute(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		videos  []*entities.Video
+		videos  entities.Videos
 		wantErr bool
 	}{
 		{
 			name:    "Success",
-			videos:  []*entities.Video{testVideo},
+			videos:  entities.Videos{testVideo},
 			wantErr: false,
 		},
 		{
@@ -46,7 +46,7 @@ func TestGetClipsByPeriod_Execute(t *testing.T) {
 				mockClipRepository.EXPECT().FindAllByPeriod(start, end).Return(nil, errors.New("some error"))
 			} else {
 				mockClipRepository.EXPECT().FindAllByPeriod(start, end).Return(
-					[]*entities2.OldVideo{factories.NewClip("testID")}, nil)
+					entities2.OldVideos{factories.NewClip("testID")}, nil)
 
 			}
 

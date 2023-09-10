@@ -30,7 +30,7 @@ func NewDiscordService() (ports.DiscordService, error) {
 	return &discordServiceImpl{Session: session}, nil
 }
 
-func (s *discordServiceImpl) SendMessages(liveStreams []*entities.Video, countryCode string) error {
+func (s *discordServiceImpl) SendMessages(liveStreams entities.Videos, countryCode string) error {
 	botUser, err := s.Session.User("@me")
 	if err != nil {
 		return fmt.Errorf("error getting bot user: %v", err)
@@ -73,7 +73,7 @@ func (s *discordServiceImpl) SendMessages(liveStreams []*entities.Video, country
 	return nil
 }
 
-func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStreams []*entities.Video, botUser *discordgo.User, countryCode string) error {
+func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStreams entities.Videos, botUser *discordgo.User, countryCode string) error {
 	targetChannelName := "ぶいすぽ配信情報"
 	initialMessage := "すぽじゅーるは、ぶいすぽっ!メンバーの配信(Youtube/Twitch/ツイキャス/ニコニコ)や切り抜きを一覧で確認できる非公式サイトです。 /Spodule aggregates schedules for Japan's Vtuber group, Vspo.\n\nWeb版はこちら：https://www.vspo-schedule.com/schedule/all"
 
@@ -200,7 +200,7 @@ func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStream
 	return nil
 }
 
-func buildEmbeds(liveStreams []*entities.Video, countryCode string) ([]*discordgo.MessageEmbed, map[string]bool) {
+func buildEmbeds(liveStreams entities.Videos, countryCode string) ([]*discordgo.MessageEmbed, map[string]bool) {
 	var embeds []*discordgo.MessageEmbed
 	isExistVideoMap := make(map[string]bool)
 
@@ -239,4 +239,85 @@ func buildEmbeds(liveStreams []*entities.Video, countryCode string) ([]*discordg
 	}
 
 	return embeds, isExistVideoMap
+}
+
+func (s *discordServiceImpl) DeleteMessages() error {
+	// Fetch all guilds the bot is a part of
+	guilds, err := s.Session.UserGuilds(100, "", "")
+	if err != nil {
+		return fmt.Errorf("error getting user guilds: %v", err)
+	}
+
+	var wg sync.WaitGroup
+	errCh := make(chan error, len(guilds))
+
+	for _, guild := range guilds {
+		wg.Add(1)
+		go func(guild *discordgo.UserGuild) {
+			defer wg.Done()
+			// Assuming you have the DeleteAllExceptInit method defined as suggested in previous answer
+			if err := s.DeleteAllExceptInitFromGuild(guild.ID); err != nil {
+				errCh <- fmt.Errorf("error deleting messages from guild %s: %v", guild.Name, err)
+			}
+		}(guild)
+	}
+
+	// Wait for all goroutines to finish
+	wg.Wait()
+
+	close(errCh)
+
+	// Collect all errors, if any
+	var errs []string
+	for err := range errCh {
+		errs = append(errs, err.Error())
+	}
+
+	if len(errs) > 0 {
+		return fmt.Errorf("errors deleting messages from guilds: %s", strings.Join(errs, "; "))
+	}
+
+	return nil
+}
+
+func (s *discordServiceImpl) DeleteAllExceptInitFromGuild(guildID string) error {
+	botUser, err := s.Session.User("@me")
+	if err != nil {
+		return fmt.Errorf("error getting bot user: %v", err)
+	}
+	const initialMessage = "すぽじゅーるは、ぶいすぽっ!メンバーの配信(Youtube/Twitch/ツイキャス/ニコニコ)や切り抜きを一覧で確認できる非公式サイトです。 /Spodule aggregates schedules for Japan's Vtuber group, Vspo.\n\nWeb版はこちら：https://www.vspo-schedule.com/schedule/all"
+	targetChannelName := "ぶいすぽ配信情報"
+	// Fetch all channels in the guild
+	channels, err := s.Session.GuildChannels(guildID)
+	if err != nil {
+		return fmt.Errorf("error getting guild channels for guild %s: %v", guildID, err)
+	}
+	var targetChannel *discordgo.Channel
+	for _, channel := range channels {
+		if channel.Name == targetChannelName {
+			targetChannel = channel
+			break
+		}
+	}
+
+	if targetChannel != nil {
+		// Fetch existing messages from the channel
+		existingMessages, err := s.Session.ChannelMessages(targetChannel.ID, 100, "", "", "")
+		if err != nil {
+			return fmt.Errorf("error getting messages from channel ID %s: %v", targetChannel.ID, err)
+		}
+
+		// Iterate over each message
+		for _, msg := range existingMessages {
+			// If the message content isn't the initialMessage, delete it
+			if msg.Content != initialMessage && msg.Author.ID == botUser.ID {
+				err := s.Session.ChannelMessageDelete(targetChannel.ID, msg.ID)
+				if err != nil {
+					return fmt.Errorf("error deleting message with ID %s in channel ID %s: %v", msg.ID, targetChannel.ID, err)
+				}
+			}
+		}
+	}
+
+	return nil
 }

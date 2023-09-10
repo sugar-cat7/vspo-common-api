@@ -40,7 +40,7 @@ func (h *CronHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var videos []*entities.Video
+	var videos entities.Videos
 	errCh := make(chan error, 2)
 
 	// Define a helper function to process tasks concurrently and capture errors

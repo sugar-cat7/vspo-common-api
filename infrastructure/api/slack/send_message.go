@@ -1,4 +1,4 @@
-package entities
+package ports
 
 import (
 	"bytes"
@@ -6,25 +6,27 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+
+	"github.com/sugar-cat7/vspo-common-api/domain/ports"
 )
 
 type SlackPayload struct {
 	Text string `json:"text"`
 }
 
-type SlackNotifier struct {
+type slackServiceImpl struct {
 	webhookURL string
 }
 
-func NewSlackNotifier() *SlackNotifier {
+func NewSlackService() (ports.SlackService, error) {
 	url, ok := os.LookupEnv("SLACK_WEBHOOK_URL")
 	if !ok {
-		panic("SLACK_WEBHOOK_URL not set")
+		return nil, fmt.Errorf("SLACK_WEBHOOK_URL not set")
 	}
-	return &SlackNotifier{webhookURL: url}
+	return &slackServiceImpl{webhookURL: url}, nil
 }
 
-func (s *SlackNotifier) SendMessage(message string) error {
+func (s *slackServiceImpl) SendMessage(message string) error {
 	data := SlackPayload{
 		Text: "```" + message + "```",
 	}

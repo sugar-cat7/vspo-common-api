@@ -2,6 +2,7 @@ package mappers
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
@@ -9,18 +10,18 @@ import (
 )
 
 // MapToVideos takes a list of YouTube API video objects and maps them to custom video objects.
-func MapToVideos(ytVideos []*youtube.Video) []*entities.Video {
-	videos := make([]*entities.Video, len(ytVideos))
+func MapToVideos(cronType entities.CronType, ytVideos []*youtube.Video) entities.Videos {
+	videos := make(entities.Videos, len(ytVideos))
 	for i, ytVideo := range ytVideos {
-		videos[i] = mapToVideo(ytVideo)
+		videos[i] = mapToVideo(cronType, ytVideo)
 	}
 	return videos
 }
 
 // mapToVideo takes a YouTube API video object and maps it to a custom video object.
-func mapToVideo(ytVideo *youtube.Video) *entities.Video {
+func mapToVideo(cronType entities.CronType, ytVideo *youtube.Video) *entities.Video {
 	publishedAt, _ := time.Parse(time.RFC3339, ytVideo.Snippet.PublishedAt) // Error handling can be added here
-	return &entities.Video{
+	video := &entities.Video{
 		ID:          ytVideo.Id,
 		Title:       ytVideo.Snippet.Title,
 		Description: ytVideo.Snippet.Description,
@@ -40,4 +41,15 @@ func mapToVideo(ytVideo *youtube.Video) *entities.Video {
 		// You may need additional logic to map ChannelIcon and Platform
 		Tags: ytVideo.Snippet.Tags,
 	}
+
+	switch cronType {
+	case entities.Daily:
+		video.ViewCount.Daily = strconv.FormatUint(ytVideo.Statistics.ViewCount, 10)
+	case entities.Weekly:
+		video.ViewCount.Weekly = strconv.FormatUint(ytVideo.Statistics.ViewCount, 10)
+	case entities.Monthly:
+		video.ViewCount.Monthly = strconv.FormatUint(ytVideo.Statistics.ViewCount, 10)
+	}
+
+	return video
 }

@@ -18,7 +18,7 @@ func NewGetAllSongs(songRepository repositories.SongRepository) *GetAllSongs {
 }
 
 // Execute gets all songs from Firestore.
-func (g *GetAllSongs) Execute() ([]*entities.Video, error) {
+func (g *GetAllSongs) Execute() (entities.Videos, error) {
 	// Get all songs from Firestore
 	songs, err := g.songRepository.GetAll()
 	if err != nil {

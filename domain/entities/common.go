@@ -57,9 +57,14 @@ const (
 	Twitch      Platform = "twitch"
 	Twitcasting Platform = "twitcasting"
 	Niconico    Platform = "niconico"
+	Discord     Platform = "discord"
 )
 
 type LiveStatus string
+
+func (l LiveStatus) String() string {
+	return string(l)
+}
 
 const (
 	LiveStatusUpcoming LiveStatus = "upcoming"
@@ -76,6 +81,6 @@ func (l LiveLink) String() string {
 const (
 	LiveLinkYouTube     LiveLink = "https://www.youtube.com/watch?v="
 	LiveLinkTwitch      LiveLink = "https://www.twitch.tv/"
-	LiveLinkTwitcasting LiveLink = "https://twitcasting.tv/movie/"
+	LiveLinkTwitcasting LiveLink = "https://twitcasting.tv/"
 	LiveLinkNiconico    LiveLink = "https://live.nicovideo.jp/watch/"
 )

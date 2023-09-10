@@ -8,10 +8,10 @@ import (
 // SongRepository is an interface for a song repository.
 type SongRepository interface {
 	Create(song *entities.Video) error
-	GetAll() ([]*entities.Video, error)
+	GetAll() (entities.Videos, error)
 	GetByID(id string) (*entities.Video, error)
 	Update(song *entities.Video) error
 	Delete(id string) error
-	UpdateInBatch(songs []*entities.Video) error
-	CreateInBatch(songs []*entities.Video) error
+	UpdateInBatch(songs entities.Videos) error
+	CreateInBatch(songs entities.Videos) error
 }

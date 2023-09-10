@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"github.com/sugar-cat7/vspo-common-api/domain/entities"
 	"github.com/sugar-cat7/vspo-common-api/domain/ports"
 	"github.com/sugar-cat7/vspo-common-api/domain/repositories"
 	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
@@ -26,7 +27,7 @@ func (c *CreateSong) Execute(videoIDs []string) error {
 	}
 
 	// Map the video data to Song models
-	songs, err := mappers.SongMapMultiple(videos)
+	songs := mappers.MapToVideos(entities.None, videos)
 	if err != nil {
 		return err
 	}

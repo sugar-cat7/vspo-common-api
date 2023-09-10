@@ -7,7 +7,6 @@ import (
 	"github.com/sugar-cat7/vspo-common-api/domain/ports"
 	"github.com/sugar-cat7/vspo-common-api/domain/repositories"
 	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
-	"github.com/sugar-cat7/vspo-common-api/util"
 )
 
 // UpdateClipsByPeriod is a use case for updateting all clips from Firestore.
@@ -25,8 +24,8 @@ func NewUpdateClipsByPeriod(clipRepository repositories.ClipRepository, youtubeS
 }
 
 // Execute updates all clips from Firestore.
-func (g *UpdateClipsByPeriod) Execute(cronType entities.CronType) ([]*entities.Video, error) {
-	start, err := util.GetStartTime(cronType)
+func (g *UpdateClipsByPeriod) Execute(cronType entities.CronType) (entities.Videos, error) {
+	start, err := cronType.GetStartTime()
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +41,7 @@ func (g *UpdateClipsByPeriod) Execute(cronType entities.CronType) ([]*entities.V
 		return nil, err
 	}
 
-	videoIDs := util.GetVideoIDs(videos)
+	videoIDs := videos.GetIDs()
 	// Fetch video data from YouTube API
 	ytVideos, err := g.youtubeService.GetVideos(videoIDs)
 	if err != nil {
@@ -53,12 +52,7 @@ func (g *UpdateClipsByPeriod) Execute(cronType entities.CronType) ([]*entities.V
 		return nil, fmt.Errorf("Fail Fetching Video")
 	}
 
-	updatedVideos, err := util.UpdateViewCounts(cronType, ytVideos, videos)
-	if err != nil {
-		return nil, err
-	}
-
-	err = mappers.BindAndUpdateMultiple(cronType, clips, updatedVideos)
+	err = mappers.BindAndUpdateMultiple(cronType, clips, mappers.MapToVideos(cronType, ytVideos))
 	if err != nil {
 		return nil, err
 	}

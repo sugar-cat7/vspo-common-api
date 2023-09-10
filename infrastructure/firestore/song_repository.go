@@ -39,13 +39,13 @@ func (r *SongRepository) Create(song *entities.Video) error {
 }
 
 // GetAll retrieves all songs from Firestore.
-func (r *SongRepository) GetAll() ([]*entities.Video, error) {
+func (r *SongRepository) GetAll() (entities.Videos, error) {
 	docs, err := r.client.GetAll(r.collectionName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get all documents from Firestore: %w", err)
 	}
 
-	var songs []*entities.Video
+	var songs entities.Videos
 	for _, doc := range docs {
 		var song entities.Video
 		err = doc.DataTo(&song)
@@ -97,7 +97,7 @@ func (r *SongRepository) Delete(id string) error {
 }
 
 // UpdateInBatch updates multiple songs in Firestore using batch operation.
-func (r *SongRepository) UpdateInBatch(songs []*entities.Video) error {
+func (r *SongRepository) UpdateInBatch(songs entities.Videos) error {
 	// split songs into chunks of 500 (maxBatchSize)
 	songChunks, err := util.Chunk(songs, maxBatchSize)
 	if err != nil {
@@ -127,7 +127,7 @@ func (r *SongRepository) UpdateInBatch(songs []*entities.Video) error {
 }
 
 // CreateInBatch creates multiple songs in Firestore using batch operation.
-func (r *SongRepository) CreateInBatch(songs []*entities.Video) error {
+func (r *SongRepository) CreateInBatch(songs entities.Videos) error {
 	// split songs into chunks of 500 (maxBatchSize)
 	songChunks, err := util.Chunk(songs, maxBatchSize)
 	if err != nil {

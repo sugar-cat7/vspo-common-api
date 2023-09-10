@@ -19,7 +19,7 @@ func NewGetClipsByPeriod(clipRepository repositories.ClipRepository) *GetClipsBy
 }
 
 // Execute gets all clips from Firestore.
-func (g *GetClipsByPeriod) Execute(start, end string) ([]*entities.Video, error) {
+func (g *GetClipsByPeriod) Execute(start, end string) (entities.Videos, error) {
 	// Get all clips from Firestore
 	clips, err := g.clipRepository.FindAllByPeriod(start, end)
 	if err != nil {

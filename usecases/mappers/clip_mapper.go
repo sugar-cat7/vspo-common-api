@@ -33,8 +33,8 @@ func ClipMap(clip *entities2.OldVideo) (*entities.Video, error) {
 }
 
 // ClipMapMultiple maps multiple Clips to domain Videos.
-func ClipMapMultiple(clips []*entities2.OldVideo) ([]*entities.Video, error) {
-	videos := make([]*entities.Video, len(clips))
+func ClipMapMultiple(clips entities2.OldVideos) (entities.Videos, error) {
+	videos := make(entities.Videos, len(clips))
 	for i, clip := range clips {
 		video, err := ClipMap(clip)
 		if err != nil {
@@ -64,7 +64,7 @@ func BindAndUpdate(cronType entities.CronType, clip *entities2.OldVideo, video *
 }
 
 // BindAndUpdateMultiple binds multiple Videos to multiple Clips and updates the Clips.
-func BindAndUpdateMultiple(cronType entities.CronType, clips []*entities2.OldVideo, videos []*entities.Video) error {
+func BindAndUpdateMultiple(cronType entities.CronType, clips entities2.OldVideos, videos entities.Videos) error {
 	if len(clips) != len(videos) {
 		return fmt.Errorf("Length of clips and videos must be the same")
 	}

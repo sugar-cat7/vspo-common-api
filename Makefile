@@ -14,12 +14,15 @@ build:
 test:
 	go test ./...
 
+wire_gen: export PATH := $(PATH):$(GOBIN)
 wire_gen:
 	go generate ./app/di/wire.go
 
+mock_gen: export PATH := $(PATH):$(GOBIN)
 mock_gen:
 	go generate ./domain/...
 
+swagger_gen: export PATH := $(PATH):$(GOBIN)
 swagger_gen:
 	swag init
 

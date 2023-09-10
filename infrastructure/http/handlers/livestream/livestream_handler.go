@@ -34,7 +34,8 @@ func (h *GetLiveStreamsByPeriodHandler) Handle(w http.ResponseWriter, r *http.Re
 	// query param
 	start := r.URL.Query().Get("start_date")
 	end := r.URL.Query().Get("end_date")
-	liveStreams, err := h.getLiveStreamsByPeriodUsecase.Execute(start, end)
+	countryCode := r.URL.Query().Get("country_code")
+	liveStreams, err := h.getLiveStreamsByPeriodUsecase.Execute(start, end, countryCode)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

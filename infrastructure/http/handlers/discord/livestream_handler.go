@@ -2,9 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
-	"github.com/sugar-cat7/vspo-common-api/domain/entities"
+	"github.com/sugar-cat7/vspo-common-api/domain/ports"
 	"github.com/sugar-cat7/vspo-common-api/infrastructure/http/mappers"
 	usecases "github.com/sugar-cat7/vspo-common-api/usecases/discord"
 )
@@ -12,12 +13,14 @@ import (
 // DiscordSendMessageHandler is a handler for getting all liveStreams.
 type DiscordSendMessageHandler struct {
 	discordSendMessage *usecases.DiscordSendMessage
+	slackService       ports.SlackService
 }
 
 // NewDiscordSendMessageHandler creates a new DiscordSendMessageHandler.
-func NewDiscordSendMessageHandler(u *usecases.DiscordSendMessage) *DiscordSendMessageHandler {
+func NewDiscordSendMessageHandler(u *usecases.DiscordSendMessage, s ports.SlackService) *DiscordSendMessageHandler {
 	return &DiscordSendMessageHandler{
 		discordSendMessage: u,
+		slackService:       s,
 	}
 }
 
@@ -32,8 +35,8 @@ func (h *DiscordSendMessageHandler) Handle(w http.ResponseWriter, r *http.Reques
 	liveStreams, err := h.discordSendMessage.Execute(start, end, countryCode)
 
 	if err != nil {
-		s := entities.NewSlackNotifier()
-		s.SendMessage(err.Error())
+		errMsg := fmt.Sprintf("Discord Error: %s", err.Error())
+		_ = h.slackService.SendMessage(errMsg)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

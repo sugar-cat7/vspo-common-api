@@ -8,47 +8,51 @@ import (
 
 // CountryCodeToTimeZone provides a basic mapping from country codes to time zones.
 var CountryCodeToTimeZone = map[string]string{
-	"US": "America/New_York", // You might adjust to more specific ones like "America/Los_Angeles" for PT
+	"US": "America/New_York",
 	"GB": "Europe/London",
 	"JP": "Asia/Tokyo",
-	// Add more countries and their main time zones as needed.
 }
 
-func FormatTimeForCountry(videoTime time.Time, countryCode string) (string, error) {
+// ConvertTimeToCountryTimeZone converts the given time to the specified country's timezone.
+func ConvertTimeToCountryTimeZone(t time.Time, countryCode string) (time.Time, error) {
 	// Convert the country code to uppercase for consistency in lookup
 	upperCountryCode := strings.ToUpper(countryCode)
 
 	// Get timezone for country code
 	tz, exists := CountryCodeToTimeZone[upperCountryCode]
 	if !exists {
-		// Default timezone if country code is not recognized
 		tz = "UTC"
 	}
 
-	// Convert ScheduledStartTime to the timezone
+	// Load the location for the time zone
 	loc, err := time.LoadLocation(tz)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	// Convert the given time to the specified time zone and return
+	return t.In(loc), nil
+}
+
+func FormatTimeForCountry(videoTime time.Time, countryCode string) (string, error) {
+	localTime, err := ConvertTimeToCountryTimeZone(videoTime, countryCode)
 	if err != nil {
 		return "", err
 	}
 
-	localTime := videoTime.In(loc)
-
 	// Choose format based on language
-	var formattedTime string
+	upperCountryCode := strings.ToUpper(countryCode)
 	switch upperCountryCode {
 	case "JP":
-		formattedTime = localTime.Format("2006年01月02日 15時04分")
+		return localTime.Format("2006年01月02日 15時04分"), nil
 	case "US", "GB":
-		formattedTime = localTime.Format("January 2, 2006, 3:04 PM")
+		return localTime.Format("January 2, 2006, 3:04 PM"), nil
 	default:
-		formattedTime = localTime.Format("2006-01-02 15:04:05")
+		return localTime.Format("2006-01-02 15:04:05"), nil
 	}
-
-	return formattedTime, nil
 }
 
 func ParseTimeForCountry(formattedTime, countryCode string) (time.Time, error) {
-	// Convert the country code to uppercase for consistency in lookup
 	upperCountryCode := strings.ToUpper(countryCode)
 
 	// Get timezone for country code
@@ -82,22 +86,10 @@ func ParseTimeForCountry(formattedTime, countryCode string) (time.Time, error) {
 }
 
 func IsFuture(t time.Time, countryCode string) (bool, error) {
-
-	// Get timezone for country code
-	tz, exists := CountryCodeToTimeZone[strings.ToUpper(countryCode)]
-	if !exists {
-		tz = "UTC"
-	}
-
-	// Load the location for the time zone
-	loc, err := time.LoadLocation(tz)
+	localNow, err := ConvertTimeToCountryTimeZone(time.Now(), countryCode)
 	if err != nil {
 		return false, err
 	}
 
-	// Get current time in the given time zone
-	currentTime := time.Now().In(loc)
-
-	// Return true if the time is in the future, otherwise false
-	return t.After(currentTime), nil
+	return t.After(localNow), nil
 }

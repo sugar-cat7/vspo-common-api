@@ -19,7 +19,7 @@ func NewAddNewSong(youtubeService ports.YouTubeService, songRepository repositor
 	}
 }
 
-func (c *AddNewSong) Execute(playlistIDs []string) ([]*entities.Video, error) {
+func (c *AddNewSong) Execute(playlistIDs []string) (entities.Videos, error) {
 
 	playList, err := c.youtubeService.GetPlaylists(playlistIDs)
 	if err != nil {
@@ -60,10 +60,7 @@ func (c *AddNewSong) Execute(playlistIDs []string) ([]*entities.Video, error) {
 	}
 
 	// Map the video data to Song models
-	songs, err := mappers.SongMapMultiple(videos)
-	if err != nil {
-		return nil, err
-	}
+	songs := mappers.MapToVideos(entities.None, videos)
 
 	// Save the new songs to Firestore
 	err = c.songRepository.CreateInBatch(songs)

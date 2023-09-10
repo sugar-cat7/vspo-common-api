@@ -19,7 +19,7 @@ func NewDiscordSendMessage(discordService ports.DiscordService, liveStreamReposi
 	}
 }
 
-func (c *DiscordSendMessage) Execute(start, end, countryCode string) ([]*entities.Video, error) {
+func (c *DiscordSendMessage) Execute(start, end, countryCode string) (entities.Videos, error) {
 
 	// Get all liveStreams from Firestore
 	liveStreams, err := c.liveStreamRepository.FindAllByPeriod(start, end)
@@ -31,7 +31,7 @@ func (c *DiscordSendMessage) Execute(start, end, countryCode string) ([]*entitie
 	if err != nil {
 		return nil, err
 	}
-	sendVideos := make([]*entities.Video, 0, len(videos))
+	sendVideos := make(entities.Videos, 0, len(videos))
 	for _, v := range videos {
 		if v.GetLiveStatus() != entities.LiveStatusArchived {
 			sendVideos = append(sendVideos, v)
@@ -39,7 +39,15 @@ func (c *DiscordSendMessage) Execute(start, end, countryCode string) ([]*entitie
 	}
 
 	if len(sendVideos) == 0 {
+		err = c.discordService.DeleteMessages()
+		if err != nil {
+			return nil, err
+		}
 		return nil, nil
+	}
+
+	if sendVideos.SetLocalTime(countryCode) != nil {
+		return nil, err
 	}
 
 	err = c.discordService.SendMessages(sendVideos, countryCode)

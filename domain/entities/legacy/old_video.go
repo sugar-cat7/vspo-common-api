@@ -43,3 +43,19 @@ func (s OldVideo) GetUpdate() []firestore.Update {
 		{Path: "newViewCount", Value: s.NewViewCount},
 	}
 }
+
+// UpdateViewCount updates the view count of the video by CronType.
+func (s *OldVideo) SetViewCount(CronType entities.CronType, viewCount string) {
+	switch CronType {
+	case entities.Daily:
+		s.NewViewCount.Daily = viewCount
+	case entities.Weekly:
+		s.NewViewCount.Weekly = viewCount
+	case entities.Monthly:
+		s.NewViewCount.Monthly = viewCount
+	}
+	s.NewViewCount.Total = viewCount
+	s.ViewCount = viewCount
+}
+
+type OldVideos []*OldVideo

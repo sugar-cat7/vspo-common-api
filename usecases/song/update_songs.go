@@ -4,7 +4,7 @@ import (
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
 	"github.com/sugar-cat7/vspo-common-api/domain/ports"
 	"github.com/sugar-cat7/vspo-common-api/domain/repositories"
-	"github.com/sugar-cat7/vspo-common-api/util"
+	"github.com/sugar-cat7/vspo-common-api/usecases/mappers"
 )
 
 // UpdateSongs is a use case for updating songs in Firestore from YouTube.
@@ -29,21 +29,16 @@ func (u *UpdateSongs) Execute(cronType entities.CronType) error {
 		return err
 	}
 
-	videoIDs := util.GetVideoIDs(allVideos)
+	videoIDs := allVideos.GetIDs()
 	// Fetch video data from YouTube API
 	ytVideos, err := u.youtubeService.GetVideos(videoIDs)
 	if err != nil {
 		return err
 	}
-
-	// Convert the video data to Song models
-	updatedSongs, err := util.UpdateViewCounts(cronType, ytVideos, allVideos)
-	if err != nil {
-		return err
-	}
+	mappedVideos := mappers.MapToVideos(cronType, ytVideos)
 
 	// Update the songs in Firestore
-	err = u.songRepository.UpdateInBatch(updatedSongs)
+	err = u.songRepository.UpdateInBatch(mappedVideos)
 	if err != nil {
 		return err
 	}

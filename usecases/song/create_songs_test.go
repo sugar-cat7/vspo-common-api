@@ -22,7 +22,7 @@ func TestCreateSong_Execute(t *testing.T) {
 		factories.NewYoutubeVideo(videoIDs[1]),
 	}
 
-	newSongData := []*entities.Video{
+	newSongData := entities.Videos{
 		factories.NewVideoPtr(videoIDs[0]),
 		factories.NewVideoPtr(videoIDs[1]),
 	}
@@ -31,7 +31,7 @@ func TestCreateSong_Execute(t *testing.T) {
 		name         string
 		videoIDs     []string
 		newVideoData []*youtube.Video
-		newSongData  []*entities.Video
+		newSongData  entities.Videos
 		expectErr    bool
 	}{
 		{

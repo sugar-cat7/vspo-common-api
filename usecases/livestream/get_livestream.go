@@ -19,7 +19,7 @@ func NewGetLiveStreamsByPeriod(liveStreamRepository repositories.LiveStreamRepos
 }
 
 // Execute gets all liveStreams from Firestore.
-func (g *GetLiveStreamsByPeriod) Execute(start, end string) ([]*entities.Video, error) {
+func (g *GetLiveStreamsByPeriod) Execute(start, end, countryCode string) (entities.Videos, error) {
 	// Get all liveStreams from Firestore
 	liveStreams, err := g.liveStreamRepository.FindAllByPeriod(start, end)
 	if err != nil {
@@ -28,6 +28,10 @@ func (g *GetLiveStreamsByPeriod) Execute(start, end string) ([]*entities.Video, 
 
 	videos, err := mappers.LiveStreamMapMultiple(liveStreams)
 	if err != nil {
+		return nil, err
+	}
+
+	if videos.SetLocalTime(countryCode) != nil {
 		return nil, err
 	}
 
