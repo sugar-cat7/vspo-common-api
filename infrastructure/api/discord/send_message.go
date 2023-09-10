@@ -147,12 +147,14 @@ func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStream
 			if _, exists := newEmbedMap[embed.URL]; !exists {
 				// _, err := s.Session.ChannelMessage(targetChannel.ID, embed.URL)
 				// if err == nil {
-				// 既存のメッセージの中で新しいライブストリームの一覧にないものがあれば、それを削除
-				err := s.Session.ChannelMessageDelete(targetChannel.ID, msg.ID)
-				if err != nil {
-					return fmt.Errorf("error deleting message in channel %s: %v", targetChannel.Name, err)
+				if msg.Content != initialMessage && msg.Author.ID == botUser.ID {
+					// 既存のメッセージの中で新しいライブストリームの一覧にないものがあれば、それを削除
+					err := s.Session.ChannelMessageDelete(targetChannel.ID, msg.ID)
+					if err != nil {
+						return fmt.Errorf("error deleting message in channel %s: %v", targetChannel.Name, err)
+					}
+					// }
 				}
-				// }
 			}
 			reSendURL := make([]string, 0, len(newEmbeds))
 
@@ -166,11 +168,13 @@ func (s *discordServiceImpl) processGuild(guild *discordgo.UserGuild, liveStream
 			}
 			// ラベルの色の修正
 			if !isFuture && embed.Color != entities.ColorLive {
-				// 過去の配信は削除
-				err := s.Session.ChannelMessageDelete(targetChannel.ID, msg.ID)
-				reSendURL = append(reSendURL, embed.URL)
-				if err != nil {
-					return fmt.Errorf("error deleting message in channel %s: %v", targetChannel.Name, err)
+				if msg.Content != initialMessage && msg.Author.ID == botUser.ID {
+					// 過去の配信は削除
+					err := s.Session.ChannelMessageDelete(targetChannel.ID, msg.ID)
+					reSendURL = append(reSendURL, embed.URL)
+					if err != nil {
+						return fmt.Errorf("error deleting message in channel %s: %v", targetChannel.Name, err)
+					}
 				}
 			}
 			// twitchの配信が終了したら削除（配信URLが変わるため別途判定が必要?）
