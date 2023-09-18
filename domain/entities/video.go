@@ -75,7 +75,7 @@ func (v *Video) GetLink() string {
 		}
 		return LiveLinkTwitch.String() + v.ChannelID
 	case Twitcasting:
-		return v.Link + "movie/" + v.ID
+		return v.Link + "/movie/" + v.ID
 	case Niconico:
 		return LiveLinkNiconico.String() + v.ID
 	default:
