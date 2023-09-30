@@ -3,7 +3,7 @@ module github.com/sugar-cat7/vspo-common-api
 go 1.20
 
 require (
-	cloud.google.com/go/firestore v1.12.0
+	cloud.google.com/go/firestore v1.13.0
 	github.com/brianvoe/gofakeit/v6 v6.23.2
 	github.com/golang/mock v1.6.0
 	github.com/google/wire v0.5.0
