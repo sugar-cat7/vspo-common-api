@@ -1,7 +1,6 @@
 package mappers
 
 import (
-	"strconv"
 	"time"
 
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
@@ -33,29 +32,30 @@ func ChannelMap(ytChannel *youtube.Channel) (*entities.Channel, error) {
 					Width:  int(ytChannel.Snippet.Thumbnails.Medium.Width),
 					Height: int(ytChannel.Snippet.Thumbnails.Medium.Height),
 				},
-				High: entities.Thumbnail{
-					URL:    ytChannel.Snippet.Thumbnails.High.Url,
-					Width:  int(ytChannel.Snippet.Thumbnails.High.Width),
-					Height: int(ytChannel.Snippet.Thumbnails.High.Height),
-				},
-				Standard: entities.Thumbnail{
-					URL:    ytChannel.Snippet.Thumbnails.Standard.Url,
-					Width:  int(ytChannel.Snippet.Thumbnails.Standard.Width),
-					Height: int(ytChannel.Snippet.Thumbnails.Standard.Height),
-				},
-				Maxres: entities.Thumbnail{
-					URL:    ytChannel.Snippet.Thumbnails.Maxres.Url,
-					Width:  int(ytChannel.Snippet.Thumbnails.Maxres.Width),
-					Height: int(ytChannel.Snippet.Thumbnails.Maxres.Height),
-				},
+				//FIXME:Nullの場合がある
+				// High: entities.Thumbnail{
+				// 	URL:    ytChannel.Snippet.Thumbnails.High.Url,
+				// 	Width:  int(ytChannel.Snippet.Thumbnails.High.Width),
+				// 	Height: int(ytChannel.Snippet.Thumbnails.High.Height),
+				// },
+				// Standard: entities.Thumbnail{
+				// 	URL:    ytChannel.Snippet.Thumbnails.Standard.Url,
+				// 	Width:  int(ytChannel.Snippet.Thumbnails.Standard.Width),
+				// 	Height: int(ytChannel.Snippet.Thumbnails.Standard.Height),
+				// },
+				// Maxres: entities.Thumbnail{
+				// 	URL:    ytChannel.Snippet.Thumbnails.Maxres.Url,
+				// 	Width:  int(ytChannel.Snippet.Thumbnails.Maxres.Width),
+				// 	Height: int(ytChannel.Snippet.Thumbnails.Maxres.Height),
+				// },
 			},
 		},
-		Statistics: entities.ChannelStatistics{
-			ViewCount:             strconv.FormatUint(ytChannel.Statistics.ViewCount, 10),
-			SubscriberCount:       strconv.FormatUint(ytChannel.Statistics.SubscriberCount, 10),
-			HiddenSubscriberCount: ytChannel.Statistics.HiddenSubscriberCount,
-			VideoCount:            strconv.FormatUint(ytChannel.Statistics.VideoCount, 10),
-		},
+		// Statistics: entities.ChannelStatistics{
+		// 	ViewCount:             strconv.FormatUint(ytChannel.Statistics.ViewCount, 10),
+		// 	SubscriberCount:       strconv.FormatUint(ytChannel.Statistics.SubscriberCount, 10),
+		// HiddenSubscriberCount: ytChannel.Statistics.HiddenSubscriberCount,
+		// 	VideoCount:            strconv.FormatUint(ytChannel.Statistics.VideoCount, 10),
+		// },
 	}, nil
 }
 
