@@ -37,7 +37,7 @@ func (s *discordServiceImpl) SendMessages(liveStreams entities.Videos, countryCo
 	}
 
 	// 所属する全てのサーバー（ギルド）の取得
-	guilds, err := s.Session.UserGuilds(250, "", "")
+	guilds, err := s.Session.UserGuilds(200, "", "")
 	if err != nil {
 		return fmt.Errorf("error getting user guilds: %v", err)
 	}
