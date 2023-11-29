@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/sugar-cat7/vspo-common-api/domain/entities"
@@ -36,38 +37,46 @@ func (s *discordServiceImpl) SendMessages(liveStreams entities.Videos, countryCo
 		return fmt.Errorf("error getting bot user: %v", err)
 	}
 
-	// 所属する全てのサーバー（ギルド）の取得
 	guilds, err := s.Session.UserGuilds(200, "", "")
 	if err != nil {
 		return fmt.Errorf("error getting user guilds: %v", err)
 	}
 
-	var wg sync.WaitGroup
-	errCh := make(chan error, len(guilds))
+	const batchSize = 50
+	for i := 0; i < len(guilds); i += batchSize {
+		end := i + batchSize
+		if end > len(guilds) {
+			end = len(guilds)
+		}
+		batch := guilds[i:end]
 
-	for _, guild := range guilds {
-		wg.Add(1)
-		go func(guild *discordgo.UserGuild) {
-			defer wg.Done()
-			if err := s.processGuild(guild, liveStreams, botUser, countryCode); err != nil {
-				errCh <- fmt.Errorf("error processing guild %s: %v", guild.Name, err)
-			}
-		}(guild)
-	}
+		var wg sync.WaitGroup
+		errCh := make(chan error, len(batch))
 
-	// Wait for all goroutines to finish
-	wg.Wait()
+		for _, guild := range batch {
+			wg.Add(1)
+			go func(guild *discordgo.UserGuild) {
+				defer wg.Done()
+				if err := s.processGuild(guild, liveStreams, botUser, countryCode); err != nil {
+					errCh <- fmt.Errorf("error processing guild %s: %v", guild.Name, err)
+				}
+			}(guild)
+		}
 
-	close(errCh)
+		wg.Wait()
+		close(errCh)
 
-	// Collect all errors, if any
-	var errs []string
-	for err := range errCh {
-		errs = append(errs, err.Error())
-	}
+		var errs []string
+		for err := range errCh {
+			errs = append(errs, err.Error())
+		}
 
-	if len(errs) > 0 {
-		return fmt.Errorf("errors processing guilds: %s", strings.Join(errs, "; "))
+		if len(errs) > 0 {
+			return fmt.Errorf("errors processing guilds: %s", strings.Join(errs, "; "))
+		}
+
+		// FIXME: temp...Sleep between batches to avoid overwhelming the server
+		time.Sleep(4 * time.Second)
 	}
 
 	return nil
