@@ -41,7 +41,7 @@ func (s *discordServiceImpl) SendMessages(liveStreams entities.Videos, countryCo
 	if err != nil {
 		return fmt.Errorf("error getting user guilds: %v", err)
 	}
-
+	var errs []string
 	const batchSize = 50
 	for i := 0; i < len(guilds); i += batchSize {
 		end := i + batchSize
@@ -66,19 +66,16 @@ func (s *discordServiceImpl) SendMessages(liveStreams entities.Videos, countryCo
 		wg.Wait()
 		close(errCh)
 
-		var errs []string
 		for err := range errCh {
 			errs = append(errs, err.Error())
-		}
-
-		if len(errs) > 0 {
-			return fmt.Errorf("errors processing guilds: %s", strings.Join(errs, "; "))
 		}
 
 		// FIXME: temp...Sleep between batches to avoid overwhelming the server
 		time.Sleep(4 * time.Second)
 	}
-
+	if len(errs) > 0 {
+		return fmt.Errorf("errors processing guilds: %s", strings.Join(errs, "; "))
+	}
 	return nil
 }
 
