@@ -27,6 +27,7 @@ type OldVideo struct {
 	TwitchName         string         `firestore:"twitchName"`
 	TwitchPastVideoId  string         `firestore:"twitchPastVideoId"`
 	TwitcastingLink    string         `firestore:"link"`
+	IsHidden           bool           `firestore:"isHidden"`
 }
 
 // GetUpdate returns the update of the OldVideo.

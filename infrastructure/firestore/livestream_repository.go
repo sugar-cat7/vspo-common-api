@@ -70,6 +70,9 @@ func (r *LiveStreamRepository) FindAllByPeriod(start, end string) ([]*entities.O
 		if err != nil {
 			return nil, fmt.Errorf("failed to map document data to the provided struct: %w", err)
 		}
+		if liveStream.IsHidden {
+			continue
+		}
 		liveStreams = append(liveStreams, &liveStream)
 	}
 
