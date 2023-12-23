@@ -40,7 +40,7 @@ func (s *discordServiceImpl) SendMessages(liveStreams entities.Videos, countryCo
 	var guilds []*discordgo.UserGuild
 	var lastID string
 	for {
-		g, err := s.Session.UserGuilds(200, lastID, "")
+		g, err := s.Session.UserGuilds(200, "", lastID)
 		if err != nil {
 			return fmt.Errorf("error getting user guilds: %v", err)
 		}
@@ -49,6 +49,8 @@ func (s *discordServiceImpl) SendMessages(liveStreams entities.Videos, countryCo
 		}
 		guilds = append(guilds, g...)
 		lastID = g[len(g)-1].ID
+
+		time.Sleep(1 * time.Second)
 	}
 
 	var errs []string
