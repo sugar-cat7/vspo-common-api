@@ -37,10 +37,20 @@ func (s *discordServiceImpl) SendMessages(liveStreams entities.Videos, countryCo
 		return fmt.Errorf("error getting bot user: %v", err)
 	}
 
-	guilds, err := s.Session.UserGuilds(200, "", "")
-	if err != nil {
-		return fmt.Errorf("error getting user guilds: %v", err)
+	var guilds []*discordgo.UserGuild
+	var lastID string
+	for {
+		g, err := s.Session.UserGuilds(200, lastID, "")
+		if err != nil {
+			return fmt.Errorf("error getting user guilds: %v", err)
+		}
+		if len(g) == 0 {
+			break
+		}
+		guilds = append(guilds, g...)
+		lastID = g[len(g)-1].ID
 	}
+
 	var errs []string
 	const batchSize = 50
 	for i := 0; i < len(guilds); i += batchSize {
