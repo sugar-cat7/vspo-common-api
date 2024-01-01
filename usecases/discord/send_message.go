@@ -33,9 +33,13 @@ func (c *DiscordSendMessage) Execute(start, end, countryCode string) (entities.V
 	}
 	sendVideos := make(entities.Videos, 0, len(videos))
 	for _, v := range videos {
-		if v.GetLiveStatus() != entities.LiveStatusArchived {
-			sendVideos = append(sendVideos, v)
+		if v.GetLiveStatus() == entities.LiveStatusArchived {
+			continue
 		}
+		if v.IsScheduledBefore12Hours() {
+			continue
+		}
+		sendVideos = append(sendVideos, v)
 	}
 
 	if len(sendVideos) == 0 {

@@ -158,3 +158,10 @@ func (v Videos) SetLocalTime(countryCode string) error {
 	}
 	return nil
 }
+
+// IsScheduledBefore12Hours checks if the video is scheduled more than 12 hours ago.
+func (v *Video) IsScheduledBefore12Hours() bool {
+	currentTime := time.Now().UTC()
+	twelveHoursAgo := currentTime.Add(-12 * time.Hour)
+	return v.ScheduledStartTime.Before(twelveHoursAgo)
+}
