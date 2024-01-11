@@ -264,41 +264,57 @@ func buildEmbeds(liveStreams entities.Videos, countryCode string) ([]*discordgo.
 }
 
 func (s *discordServiceImpl) DeleteMessages() error {
-	// Fetch all guilds the bot is a part of
-	guilds, err := s.Session.UserGuilds(100, "", "")
-	if err != nil {
-		return fmt.Errorf("error getting user guilds: %v", err)
+	var guilds []*discordgo.UserGuild
+	var lastID string
+	for {
+		g, err := s.Session.UserGuilds(200, "", lastID)
+		if err != nil {
+			return fmt.Errorf("error getting user guilds: %v", err)
+		}
+		if len(g) == 0 {
+			break
+		}
+		guilds = append(guilds, g...)
+		lastID = g[len(g)-1].ID
+
+		time.Sleep(1 * time.Second)
 	}
 
-	var wg sync.WaitGroup
-	errCh := make(chan error, len(guilds))
-
-	for _, guild := range guilds {
-		wg.Add(1)
-		go func(guild *discordgo.UserGuild) {
-			defer wg.Done()
-			// Assuming you have the DeleteAllExceptInit method defined as suggested in previous answer
-			if err := s.DeleteAllExceptInitFromGuild(guild.ID); err != nil {
-				errCh <- fmt.Errorf("error deleting messages from guild %s: %v", guild.Name, err)
-			}
-		}(guild)
-	}
-
-	// Wait for all goroutines to finish
-	wg.Wait()
-
-	close(errCh)
-
-	// Collect all errors, if any
 	var errs []string
-	for err := range errCh {
-		errs = append(errs, err.Error())
-	}
+	const batchSize = 50
+	for i := 0; i < len(guilds); i += batchSize {
+		end := i + batchSize
+		if end > len(guilds) {
+			end = len(guilds)
+		}
+		batch := guilds[i:end]
 
+		var wg sync.WaitGroup
+		errCh := make(chan error, len(batch))
+
+		for _, guild := range batch {
+			wg.Add(1)
+			go func(guild *discordgo.UserGuild) {
+				defer wg.Done()
+				if err := s.DeleteAllExceptInitFromGuild(guild.ID); err != nil {
+					errCh <- fmt.Errorf("error processing guild %s: %v", guild.Name, err)
+				}
+			}(guild)
+		}
+
+		wg.Wait()
+		close(errCh)
+
+		for err := range errCh {
+			errs = append(errs, err.Error())
+		}
+
+		// FIXME: temp...Sleep between batches to avoid overwhelming the server
+		time.Sleep(4 * time.Second)
+	}
 	if len(errs) > 0 {
-		return fmt.Errorf("errors deleting messages from guilds: %s", strings.Join(errs, "; "))
+		return fmt.Errorf("errors processing guilds: %s", strings.Join(errs, "; "))
 	}
-
 	return nil
 }
 
