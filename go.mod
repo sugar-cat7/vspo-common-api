@@ -7,7 +7,7 @@ require (
 	github.com/brianvoe/gofakeit/v6 v6.24.0
 	github.com/golang/mock v1.6.0
 	github.com/google/wire v0.5.0
-	github.com/swaggo/swag v1.16.2
+	github.com/swaggo/swag v1.16.3
 )
 
 require (
