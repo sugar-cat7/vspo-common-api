@@ -27,6 +27,7 @@ func NewDiscordService() (ports.DiscordService, error) {
 	if err != nil {
 		return nil, err
 	}
+	session.Client.Timeout = 30 * time.Second
 
 	return &discordServiceImpl{Session: session}, nil
 }
@@ -40,7 +41,7 @@ func (s *discordServiceImpl) SendMessages(liveStreams entities.Videos, countryCo
 	var guilds []*discordgo.UserGuild
 	var lastID string
 	for {
-		g, err := s.Session.UserGuilds(100, "", lastID)
+		g, err := s.Session.UserGuilds(200, "", lastID, false)
 		if err != nil {
 			return fmt.Errorf("error getting user guilds: %v", err)
 		}
@@ -266,7 +267,7 @@ func (s *discordServiceImpl) DeleteMessages() error {
 	var guilds []*discordgo.UserGuild
 	var lastID string
 	for {
-		g, err := s.Session.UserGuilds(200, "", lastID)
+		g, err := s.Session.UserGuilds(200, "", lastID, false)
 		if err != nil {
 			return fmt.Errorf("error getting user guilds: %v", err)
 		}
