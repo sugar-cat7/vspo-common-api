@@ -40,7 +40,7 @@ func (s *discordServiceImpl) SendMessages(liveStreams entities.Videos, countryCo
 	var guilds []*discordgo.UserGuild
 	var lastID string
 	for {
-		g, err := s.Session.UserGuilds(200, "", lastID)
+		g, err := s.Session.UserGuilds(100, "", lastID)
 		if err != nil {
 			return fmt.Errorf("error getting user guilds: %v", err)
 		}
@@ -81,9 +81,8 @@ func (s *discordServiceImpl) SendMessages(liveStreams entities.Videos, countryCo
 		for err := range errCh {
 			errs = append(errs, err.Error())
 		}
-
 		// FIXME: temp...Sleep between batches to avoid overwhelming the server
-		time.Sleep(4 * time.Second)
+		time.Sleep(3 * time.Second)
 	}
 	if len(errs) > 0 {
 		return fmt.Errorf("errors processing guilds: %s", strings.Join(errs, "; "))
