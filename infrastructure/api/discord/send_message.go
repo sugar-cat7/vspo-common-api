@@ -346,14 +346,16 @@ func (s *discordServiceImpl) DeleteAllExceptInitFromGuild(guildID string) error 
 		}
 
 		// Iterate over each message
+		var msgIDs []string
 		for _, msg := range existingMessages {
 			// If the message content isn't the initialMessage, delete it
 			if msg.Content != initialMessage && msg.Author.ID == botUser.ID {
-				err := s.Session.ChannelMessageDelete(targetChannel.ID, msg.ID)
-				if err != nil {
-					return fmt.Errorf("error deleting message with ID %s in channel ID %s: %v", msg.ID, targetChannel.ID, err)
-				}
+				msgIDs = append(msgIDs, msg.ID)
 			}
+		}
+		err = s.Session.ChannelMessagesBulkDelete(targetChannel.ID, msgIDs)
+		if err != nil {
+			return fmt.Errorf("error bulk deleting messages in channel ID %s: %v", targetChannel.ID, err)
 		}
 	}
 
